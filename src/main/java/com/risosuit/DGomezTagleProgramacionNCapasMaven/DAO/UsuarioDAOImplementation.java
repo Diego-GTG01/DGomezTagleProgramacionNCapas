@@ -76,9 +76,7 @@ public class UsuarioDAOImplementation implements IUsuario {
                 if (idDireccion != 0) {
 
                     Direccion direccion = new Direccion();
-                    direccion.Colonia = new Colonia();
-                    direccion.Colonia.Municipio = new Municipio();
-                    direccion.Colonia.Municipio.Estado = new Estado();
+                    
                     direccion.Colonia.Municipio.Estado.Pais = new Pais();
 
                     direccion.setIdDireccion(idDireccion);
@@ -158,9 +156,7 @@ public class UsuarioDAOImplementation implements IUsuario {
                 if (idDireccion != 0) {
 
                     Direccion direccion = new Direccion();
-                    direccion.Colonia = new Colonia();
-                    direccion.Colonia.Municipio = new Municipio();
-                    direccion.Colonia.Municipio.Estado = new Estado();
+                    
                     direccion.Colonia.Municipio.Estado.Pais = new Pais();
 
                     direccion.setIdDireccion(idDireccion);

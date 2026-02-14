@@ -10,6 +10,11 @@ public class Pais {
     private int IdPais;
    
     private String Nombre;
+
+    public Pais() {
+    }
+    
+    
     
     public int getIdPais(){
         return IdPais;

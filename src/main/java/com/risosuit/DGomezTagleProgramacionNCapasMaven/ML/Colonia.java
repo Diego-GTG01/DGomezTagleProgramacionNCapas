@@ -15,6 +15,17 @@ public class Colonia {
     @Valid
     public Municipio Municipio;
 
+    public Colonia() {
+    }
+    
+    
+
+    public Colonia(Municipio Municipio) {
+        this.Municipio = Municipio;
+    }
+    
+    
+
     public Municipio getMunicipio() {
         return Municipio;
     }

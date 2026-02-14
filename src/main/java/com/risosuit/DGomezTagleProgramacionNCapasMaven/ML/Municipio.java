@@ -13,6 +13,11 @@ public class Municipio {
     @Valid
     public Estado Estado;
 
+    public Municipio() {
+    }
+    
+    
+
     public Municipio(Estado Estado) {
         this.Estado = Estado;
     }

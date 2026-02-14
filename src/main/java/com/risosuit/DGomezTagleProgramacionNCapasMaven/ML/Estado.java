@@ -14,6 +14,11 @@ public class Estado {
     @Valid
     public Pais Pais;
 
+    public Estado() {
+    }
+
+    
+    
     public Estado(Pais Pais) {
         this.Pais = Pais;
     }
