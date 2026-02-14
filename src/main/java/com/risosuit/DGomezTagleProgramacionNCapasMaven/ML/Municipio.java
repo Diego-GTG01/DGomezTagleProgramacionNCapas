@@ -10,8 +10,15 @@ public class Municipio {
     @Min(value=1,message = "Selecciona una opción")
     private int IdMunicipio;
     private String Nombre;
-    public Estado Estado;
     @Valid
+    public Estado Estado;
+
+    public Municipio(Estado Estado) {
+        this.Estado = Estado;
+    }
+    
+    
+    
     public Estado getEstado() {
         return Estado;
     }

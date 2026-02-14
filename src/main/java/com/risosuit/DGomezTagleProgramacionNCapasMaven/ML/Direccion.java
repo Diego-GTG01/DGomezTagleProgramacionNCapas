@@ -23,7 +23,13 @@ public class Direccion {
     public Colonia Colonia;
 
     public Direccion() {
+        
     }
+
+    public Direccion(Colonia Colonia) {
+        this.Colonia = Colonia;
+    }
+    
 
     public Direccion(int IdDireccion, String Calle, String NumeroExterior, String NumeroInterior, Colonia Colonia) {
         this.IdDireccion = IdDireccion;

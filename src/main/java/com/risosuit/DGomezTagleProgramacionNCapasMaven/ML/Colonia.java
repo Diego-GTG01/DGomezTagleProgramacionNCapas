@@ -1,4 +1,3 @@
-
 package com.risosuit.DGomezTagleProgramacionNCapasMaven.ML;
 
 import jakarta.validation.Valid;
@@ -7,9 +6,10 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public class Colonia {
-    @Min(value=1,message = "Selecciona una opción")
+
+    @Min(value = 1, message = "Selecciona una opción")
     private int IdColonia;
-    
+
     private String Nombre;
     private String CodigoPostal;
     @Valid
@@ -51,6 +51,5 @@ public class Colonia {
     public void setCodigoPostal(String CodigoPostal) {
         this.CodigoPostal = CodigoPostal;
     }
-    
-    
+
 }

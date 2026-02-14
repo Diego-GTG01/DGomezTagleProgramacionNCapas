@@ -318,6 +318,26 @@
 
                                 <div class="row">
                                     
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Colonia *</label>
+                                        <div class="input-group has-validation">
+                                            <select  id="ddlcolonia" class="form-select" 
+                                                     th:classappend="${#fields.hasErrors('Direcciones[0].Colonia.IdColonia')} ? ' is-invalid' : ''"
+                                                     th:field="*{Direcciones[0].Colonia.IdColonia}" onblur="ValidarSelectBlur(this)">
+                                                <option value="0" disabled selected>Seleccione una Colonia</option>
+
+                                            </select>
+
+                                            <span id="errorddlcolonia" 
+                                                  class="invalid-feedback"
+                                                  th:if="${#fields.hasErrors('Direcciones[0].Colonia.IdColonia')}"
+                                                  th:errors="*{Direcciones[0].Colonia.IdColonia}">
+                                            </span>
+                                        </div>
+
+
+                                    </div>
+                                    
                                     
 
                                     <div class="col-md-4 mb-3">
@@ -340,11 +360,7 @@
                                                   th:if="${#fields.hasErrors('Direcciones[0].Colonia.Municipio.Estado.Pais.IdPais')}"
                                                   th:errors="*{Direcciones[0].Colonia.Municipio.Estado.Pais.IdPais}">
                                             </span>
-                                            <span id="errorRol"
-                                                  class="invalid-feedback"
-                                                  th:if="${#fields.hasErrors('Rol.IdRol')}"
-                                                  th:errors="*{Rol.IdRol}">
-                                            </span>
+                                            
                                         </div>
 
                                     </div>
@@ -390,25 +406,7 @@
                                         </div>
 
                                     </div>
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Colonia *</label>
-                                        <div class="input-group has-validation">
-                                            <select  id="ddlcolonia" class="form-select" 
-                                                     th:classappend="${#fields.hasErrors('Direcciones[0].Colonia.IdColonia')} ? ' is-invalid' : ''"
-                                                     th:field="*{Direcciones[0].Colonia.IdColonia}" onblur="ValidarSelectBlur(this)">
-                                                <option value="0" disabled selected>Seleccione una Colonia</option>
-
-                                            </select>
-
-                                            <span id="errorddlcolonia" 
-                                                  class="invalid-feedback"
-                                                  th:if="${#fields.hasErrors('Direcciones[0].Colonia.IdColonia')}"
-                                                  th:errors="*{Direcciones[0].Colonia.IdColonia}">
-                                            </span>
-                                        </div>
-
-
-                                    </div>
+                                    
 
 
                                     <div class="col-md-4 mb-3">
