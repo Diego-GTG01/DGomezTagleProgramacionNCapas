@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Gestión de Usuarios</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Bootstrap Icons -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    </head>
+
+    <body class="bg-light">
+
+        <div class="container-fluid px-3 py-3">
+
+            <!-- Header -->
+            <div class="row mb-4 align-items-center">
+                <div class="col-md-8">
+                    <h1 class="fw-bold">
+                        <i class="bi bi-people-fill me-2 text-primary"></i>Gestión de Usuarios
+                    </h1>
+                </div>
+
+                <div class="col-md-4 text-md-end mt-2 mt-md-0">
+                    <a th:href="@{/Usuario/Form}" class="btn btn-success btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Agregar Usuario
+                    </a>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+
+                        <thead class="table-light">
+                            <tr class="text-center">
+                                <th>#</th>
+                                <th><i class="bi bi-person-circle"></i> Usuario</th>
+                                <th><i class="bi bi-person-badge"></i> Nombre</th>
+                                <th><i class="bi bi-telephone"></i> Contacto</th>
+                                <th><i class="bi bi-geo-alt"></i> Direcciones</th>
+                                <th><i class="bi bi-shield-lock"></i> Rol</th>
+                                <th><i class="bi bi-gear"></i> Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr th:each="usuario, iterStat : ${usuarios}" class="text-truncate" style="max-width: 150px;">
+                                <td class="text-center fw-bold" th:text="${iterStat.count}"></td>
+
+                                <!-- Usuario -->
+                                <td class="text-center">
+                                    <div class="fw-bold" th:text="${usuario.UserName ?: 'Sin usuario'}"></div>
+                                   
+                                </td>
+
+                                <!-- Nombre -->
+                                <td class="text-truncate" style="max-width: 150px;">
+                                    <div class="fw-bold"
+                                         th:text="|${usuario.Nombre ?: ''} ${usuario.ApellidoPaterno ?: ''} ${usuario.ApellidoMaterno ?: ''}|">
+                                    </div>
+                                    <small class="text-muted d-block">
+                                        <i class="bi bi-gender-ambiguous me-1"></i>
+                                        <span th:text="${usuario.Sexo == 'FF' ? 'Femenino' :
+                                              usuario.Sexo == 'MM' ? 'Masculino' : 'No especificado'}"></span>
+                                    </small>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar-event me-1"></i>
+                                        <span th:text="${usuario.FechaNacimiento ?: 'Sin fecha'}"></span>
+                                    </small>
+                                </td>
+
+                                <!-- Contacto -->
+                                <td class="text-truncate" style="max-width: 150px;">
+                                    <small class="d-block text-truncate">
+                                        <i class="bi bi-envelope me-1"></i>
+                                        <span th:text="${usuario.Email ?: 'Sin email'}"></span>
+                                    </small>
+                                    <small class="d-block text-truncate">
+                                        <i class="bi bi-phone me-1"></i>
+                                        <span th:text="${usuario.Celular ?: 'Sin celular'}"></span>
+                                    </small>
+                                    <small class="d-block text-truncate">
+                                        <i class="bi bi-telephone me-1"></i>
+                                        <span th:text="${usuario.Telefono ?: 'Sin teléfono'}"></span>
+                                    </small>
+                                </td>
+
+                                <!-- Direcciones -->
+                                <td class="text-truncate" style="max-width: 150px;">
+                                    <div th:if="${!#lists.isEmpty(usuario.Direcciones)}">
+                                        <div th:each="dir, i : ${usuario.Direcciones}" class="mb-2 small">
+                                            <i class="bi bi-house-door me-1"></i>
+                                            <strong th:text="|${i.count}.|"></strong>
+                                            <span th:text="${dir.Calle}"></span><br>
+                                            <span th:text="|No.Ext ${dir.NumeroExterior} / No.Int ${dir.NumeroInterior ?: 'N/A'}|"></span><br>
+                                            <span th:text="${dir.Colonia?.Nombre}"></span><br>
+                                            <span th:text="|CP ${dir.Colonia?.CodigoPostal} ${dir.Colonia.Municipio?.Nombre}|"></span><br>
+                                            <span th:text="|${dir.Colonia.Municipio.Estado?.Nombre},  ${dir.Colonia.Municipio.Estado.Pais?.Nombre}|"></span><br>
+                                            
+                                        </div>
+                                    </div>
+                                    <div th:if="${#lists.isEmpty(usuario.Direcciones)}" class="text-muted small">
+                                        <i class="bi bi-exclamation-circle"></i> Sin direcciones
+                                    </div>
+                                </td>
+
+                                <!-- Rol -->
+                                <td class="text-center" style="max-width: 150px;">
+                                    <span class="badge"
+                                          th:classappend="${usuario.rol?.Nombre == 'Administrador' ? 'bg-danger' :
+                                          usuario.rol?.Nombre == 'Usuario' ? 'bg-success' :
+                                          usuario.rol?.Nombre == 'Visualizador' ? 'bg-primary' : 'bg-secondary'}"
+                                          th:text="${usuario.rol?.Nombre ?: 'Sin rol'}">
+                                    </span>
+
+                                    <div class="small text-muted mt-1">
+                                        <i class="bi bi-clock-history me-1"></i>
+                                        <span th:text="${usuario.UltimoAcceso ?: 'Sin acceso'}"></span>
+                                    </div>
+                                </td>
+
+                                <!-- Acciones -->
+                                <td class="text-center" style="max-width: 150px;">
+                                    <div class="btn-group btn-group-sm">
+                                        <a th:href="@{|Usuario/${usuario.IdUsuario}|}" 
+                                           class="btn btn-info text-white" title="Ver">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a th:href="@{|Usuario/${usuario.IdUsuario}|}" 
+                                           class="btn btn-warning text-white" title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a th:href="@{|Eliminar/${usuario.IdUsuario}|}" 
+                                           class="btn btn-danger" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </body>
+</html>
