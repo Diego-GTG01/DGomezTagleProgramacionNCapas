@@ -10,6 +10,7 @@
     </parent>
     <groupId>com.risosuit</groupId>
     <artifactId>DGomezTagleProgramacionNCapasMaven</artifactId>
+    
     <version>0.0.1-SNAPSHOT</version>
     <name>DGomezTagleProgramacionNCapasMaven</name>
     <description>Proyecto para aprendizaje de Spring</description>

@@ -14,6 +14,7 @@ public class Municipio {
     public Estado Estado;
 
     public Municipio() {
+        this.Estado = new Estado();
     }
     
     

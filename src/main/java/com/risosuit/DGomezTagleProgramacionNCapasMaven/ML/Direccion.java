@@ -23,6 +23,7 @@ public class Direccion {
     public Colonia Colonia;
 
     public Direccion() {
+        this.Colonia= new Colonia();
         
     }
 

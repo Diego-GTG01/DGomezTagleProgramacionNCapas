@@ -4,20 +4,18 @@
  */
 package com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO;
 
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Direccion;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario;
 
 /**
  *
  * @author ALIEN62
  */
-public interface IUsuario {
+public interface IDireccion {
+    public Result Add(Direccion Direccion, int idUsuario);
+    public Result Update(Direccion Direccion);
+    public Result Delete(int idDireccion);
+    public Result GetByID(int idDireccion);
     
-    public Result GetAll();
-    public Result GetById(int IdUsuario);
-    public Result Add(Usuario usuario);
-    public Result Delete(int idUsuario);
-    public Result UpdateImagen(Usuario usuario);
-    public Result Update(Usuario usuario);
     
 }

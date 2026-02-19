@@ -16,6 +16,7 @@ public class Colonia {
     public Municipio Municipio;
 
     public Colonia() {
+        this.Municipio= new Municipio();
     }
     
     

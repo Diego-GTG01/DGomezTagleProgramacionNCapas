@@ -13,6 +13,8 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Municipio;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Estado;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Pais;
 import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +68,7 @@ public class UsuarioDAOImplementation implements IUsuario {
 
                     usuarioActual.Rol.setIdRol(resultset.getInt("IdRol"));
                     usuarioActual.Rol.setNombre(resultset.getString("NombreRol"));
+                    usuarioActual.setImagenFile(resultset.getString("Imagen"));
 
                     result.Objects.add(usuarioActual);
                     idUsuarioActual = idUsuario;
@@ -76,7 +79,7 @@ public class UsuarioDAOImplementation implements IUsuario {
                 if (idDireccion != 0) {
 
                     Direccion direccion = new Direccion();
-                    
+
                     direccion.Colonia.Municipio.Estado.Pais = new Pais();
 
                     direccion.setIdDireccion(idDireccion);
@@ -145,6 +148,7 @@ public class UsuarioDAOImplementation implements IUsuario {
                     usuarioActual.setUltimoAcceso(resultset.getTimestamp("UltimoAcceso").toLocalDateTime());
 
                     usuarioActual.Rol.setIdRol(resultset.getInt("IdRol"));
+                    usuarioActual.setImagenFile(resultset.getString("Imagen"));
                     usuarioActual.Rol.setNombre(resultset.getString("NombreRol"));
 
                     result.Object = usuarioActual;
@@ -156,7 +160,7 @@ public class UsuarioDAOImplementation implements IUsuario {
                 if (idDireccion != 0) {
 
                     Direccion direccion = new Direccion();
-                    
+
                     direccion.Colonia.Municipio.Estado.Pais = new Pais();
 
                     direccion.setIdDireccion(idDireccion);
@@ -191,8 +195,8 @@ public class UsuarioDAOImplementation implements IUsuario {
     @Override
     public Result Add(Usuario usuario) {
         Result result = new Result();
-        JdbcTemplate.execute("{CALL UsuarioDireccionAddSP(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (CallableStatementCallback<Boolean>) callablestatement -> { 
-            
+        JdbcTemplate.execute("{CALL UsuarioDireccionAddSP(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (CallableStatementCallback<Boolean>) callablestatement -> {
+
             callablestatement.setString(1, usuario.getUserName());
             callablestatement.setString(2, usuario.getNombre());
             callablestatement.setString(3, usuario.getApellidoPaterno());
@@ -205,11 +209,12 @@ public class UsuarioDAOImplementation implements IUsuario {
             callablestatement.setString(10, usuario.getCelular());
             callablestatement.setString(11, usuario.getCURP());
             callablestatement.setInt(12, usuario.Rol.getIdRol());
-            callablestatement.setString(13, usuario.Direcciones.get(0).getCalle());
-            callablestatement.setString(14, usuario.Direcciones.get(0).getNumeroInterior());
-            callablestatement.setString(15, usuario.Direcciones.get(0).getNumeroExterior());
-            callablestatement.setInt(16, usuario.Direcciones.get(0).Colonia.getIdColonia());
-            
+            callablestatement.setString(13, usuario.getImagenFile());
+            callablestatement.setString(14, usuario.Direcciones.get(0).getCalle());
+            callablestatement.setString(15, usuario.Direcciones.get(0).getNumeroInterior());
+            callablestatement.setString(16, usuario.Direcciones.get(0).getNumeroExterior());
+            callablestatement.setInt(17, usuario.Direcciones.get(0).Colonia.getIdColonia());
+
             int data = callablestatement.executeUpdate();
             if (data != 0) {
                 result.Correct = true;
@@ -217,14 +222,59 @@ public class UsuarioDAOImplementation implements IUsuario {
                 result.Correct = false;
                 result.MessageException = "No se pudo guardar el registro";
             }
-        
-        
-        
+
             return true;
         });
-        
 
         return result;
     }
+
+    public Result Delete(int idUsuario) {
+        Result Result = new Result();
+        JdbcTemplate.execute("{CALL UsuarioDeleteSP(?)}", (CallableStatementCallback<Boolean>) callablestatement -> {
+            try {
+                callablestatement.setInt(1, idUsuario);
+                if (callablestatement.executeUpdate() > 0) {
+                    Result.Correct = true;
+                }
+            } catch (Exception e) {
+                Result.Correct = false;
+                Result.MessageException = e.getLocalizedMessage();
+            }
+            return true;
+
+        });
+        return Result;
+    }
+
+    @Override
+    public Result UpdateImagen(Usuario usuario) {
+        Result Result = new Result();
+        JdbcTemplate.execute("{CALL UsuarioImageUpdateSP(?,?)}", (CallableStatementCallback<Boolean>) (callablestatement) -> {
+            try {
+                callablestatement.setInt(1, usuario.getIdUsuario());
+                callablestatement.setString(2, usuario.getImagenFile());
+                callablestatement.execute();
+                if (callablestatement.executeUpdate() > 0) {
+                    Result.Correct = true;
+                }
+            } catch (Exception e) {
+                Result.Correct = false;
+                Result.MessageException = e.getLocalizedMessage();
+            }
+
+            return true;
+        });
+        return Result;
+    }
+
+    @Override
+    public Result Update(Usuario usuario) {
+        Result Result = new Result();
+        
+        return Result;
+    
+    }
+    
 
 }

@@ -16,7 +16,7 @@ public class Usuario {
     private int IdUsuario;
     @NotEmpty(message = "Este campo no Puede estar vacio")
     @Size(min = 3, max = 50, message = "Debe tener más de 3 caracteres")
-    @Pattern(regexp = "^[a-zA-Z0-9\\s]+$",message = "Ingrese Solo letras, números y espacios")
+    @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Ingrese Solo letras, números y espacios")
     private String UserName;
     @NotEmpty(message = "Este campo no Puede estar vacio")
     @Size(min = 3, max = 50, message = "Debe tener más de 3 caracteres")
@@ -28,11 +28,9 @@ public class Usuario {
     @Size(min = 3, max = 50, message = "Debe tener más de 3 caracteres")
     private String ApellidoMaterno;
     @NotEmpty(message = "Este campo no Puede estar vacio")
-    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",message = "Ingrese un correo valido")
+    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "Ingrese un correo valido")
     private String Email;
     @NotEmpty(message = "Este campo no Puede estar vacio")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&.])[A-Za-z\\d@$!%*?&.]{8,16}$", message = "Debe agregar una contraseña con 1 mayuscula, 1 minuscula,1 número, 1 caracter especial")
-    @Size(min = 8, max = 16, message = "Debe tener entre 8-16 caracteres")
     private String Password;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "Debes seleccionar una fecha")
@@ -57,9 +55,19 @@ public class Usuario {
     public Rol Rol;
     @Valid
     public List<Direccion> Direcciones;
+    @NotEmpty(message = "Este campo no Puede estar vacio")
+    private String ImagenFile;
 
     public Usuario() {
         this.Rol = new Rol();
+    }
+
+    public String getImagenFile() {
+        return ImagenFile;
+    }
+
+    public void setImagenFile(String ImagenFile) {
+        this.ImagenFile = ImagenFile;
     }
 
     public Rol getRol() {

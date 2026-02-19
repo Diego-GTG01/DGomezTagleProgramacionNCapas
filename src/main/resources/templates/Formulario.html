@@ -26,8 +26,11 @@
 
                     <div class="card">
                         <div class="card-body">
-
-                            <form method="post" th:object="${Usuario}" th:action="@{Form}">
+                            <form method="post" 
+                                  th:object="${Usuario}" 
+                                  th:action="@{/Usuario/Form}"
+                                  enctype="multipart/form-data"
+                                  > 
 
                                 <!-- Información Personal -->
                                 <h4 class="mb-3">
@@ -35,30 +38,77 @@
                                 </h4>
 
                                 <div class="row">
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Nombre(s) *</label>
+                                    <div class="col-md-12 mb-3">
+                                        <div class="card p-3 w-100">
+                                            <label for="imagenFile" class="form-label fw-bold">Imagen de Perfil</label>
 
-                                        <div class="input-group has-validation">
-                                            <span class="input-group-text">
-                                                <i class="bi bi-person"></i>
-                                            </span>
+                                            <div class="input-group has-validation">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-camera"></i>
+                                                </span>
+                                                <input type="file" 
+                                                       class="form-control" 
+                                                       name="imagenFile" 
+                                                       id="imagenFile" 
+                                                       accept="image/*"
+                                                       th:classappend="${#fields.hasErrors('ImagenFile')} ? ' is-invalid' : ''">
 
-                                            <input id="Nombre"
-                                                   th:field="*{Nombre}"
-                                                   type="text"
-                                                   class="form-control"
-                                                   th:classappend="${#fields.hasErrors('Nombre')} ? ' is-invalid' : ''"
-                                                   placeholder="Nombre(s)"
-                                                   onkeypress="SoloLetras(this, event)" 
-                                                   onblur="SoloLetrasBlur(this)">
+                                                <div th:if="${errorImagen}" class="invalid-feedback d-block">
+                                                    <span th:text="${errorImagen}"></span>
+                                                </div>
 
-                                            <span 
-                                                id="errorNombre" class="invalid-feedback"
-                                                th:if="${#fields.hasErrors('Nombre')}"
-                                                th:errors="*{Nombre}">
-                                            </span>
+                                                <div class="invalid-feedback" 
+                                                     th:if="${#fields.hasErrors('imagenFile')}" 
+                                                     th:errors="*{imagenFile}">
+                                                </div>
+                                            </div>
+
+                                            <div class="text-center mt-3">
+
+                                                <img th:if="${Usuario.ImagenFile != null}" 
+                                                     th:src="'data:image/jpeg;base64,' + ${Usuario.ImagenFile}"
+                                                     style="max-width: 300px; max-height: 300px;"
+                                                     class="img-fluid img-thumbnail" 
+                                                     alt="Foto de perfil">
+
+
+                                                <img th:if="${Usuario.ImagenFile == null}" 
+                                                     id="previewImage"
+                                                     style="max-width: 300px; max-height: 300px; display: none;"
+                                                     class="img-fluid img-thumbnail" 
+                                                     src="#"
+                                                     alt="Vista previa">
+                                            </div>
+
+                                            <div class="form-text">
+                                                <i class="bi bi-info-circle me-1"></i>Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB.
+                                            </div>
                                         </div>
                                     </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Nombre(s) *</label>
+
+                                            <div class="input-group has-validation">
+                                                <span class="input-group-text">
+                                                    <i class="bi bi-person"></i>
+                                                </span>
+
+                                                <input id="Nombre"
+                                                       th:field="*{Nombre}"
+                                                       type="text"
+                                                       class="form-control"
+                                                       th:classappend="${#fields.hasErrors('Nombre')} ? ' is-invalid' : ''"
+                                                       placeholder="Nombre(s)"
+                                                       onkeypress="SoloLetras(this, event)" 
+                                                       onblur="SoloLetrasBlur(this)">
+
+                                                <span 
+                                                    id="errorNombre" class="invalid-feedback"
+                                                    th:if="${#fields.hasErrors('Nombre')}"
+                                                    th:errors="*{Nombre}">
+                                                </span>
+                                            </div>
+                                        </div>
 
 
                                     <div class="col-md-4 mb-3">
@@ -159,7 +209,7 @@
 
                                             <span id="errorCURP"
                                                   class="invalid-feedback"
-                                                  th:if="${#fields.hasErrors('CURP')}"
+
                                                   th:errors="*{CURP}">
                                             </span>
                                         </div>
@@ -306,7 +356,7 @@
 
                                                    onblur="ValidarPassword(this, event); ValidarPasswordBlur(this); ValidarConfirmacionPassword()">
                                         </div>
-                                        <div id="errorconfirmPassword" class="mt-1 small"></div>
+                                        <span id="errorconfirmPassword" class="mt-1 small"></span>
                                     </div>
 
                                 </div>
@@ -317,29 +367,6 @@
                                 </h4>
 
                                 <div class="row">
-                                    
-                                    <div class="col-md-4 mb-3">
-                                        <label class="form-label">Colonia *</label>
-                                        <div class="input-group has-validation">
-                                            <select  id="ddlcolonia" class="form-select" 
-                                                     th:classappend="${#fields.hasErrors('Direcciones[0].Colonia.IdColonia')} ? ' is-invalid' : ''"
-                                                     th:field="*{Direcciones[0].Colonia.IdColonia}" onblur="ValidarSelectBlur(this)">
-                                                <option value="0" disabled selected>Seleccione una Colonia</option>
-
-                                            </select>
-
-                                            <span id="errorddlcolonia" 
-                                                  class="invalid-feedback"
-                                                  th:if="${#fields.hasErrors('Direcciones[0].Colonia.IdColonia')}"
-                                                  th:errors="*{Direcciones[0].Colonia.IdColonia}">
-                                            </span>
-                                        </div>
-
-
-                                    </div>
-                                    
-                                    
-
                                     <div class="col-md-4 mb-3">
                                         <label class="form-label">País *</label>
                                         <div class="input-group has-validation">
@@ -360,11 +387,11 @@
                                                   th:if="${#fields.hasErrors('Direcciones[0].Colonia.Municipio.Estado.Pais.IdPais')}"
                                                   th:errors="*{Direcciones[0].Colonia.Municipio.Estado.Pais.IdPais}">
                                             </span>
-                                            
+
                                         </div>
 
                                     </div>
-                                    
+
 
 
 
@@ -393,7 +420,7 @@
                                         <div class="input-group has-validation">
                                             <select  id="ddlmunicipio" class="form-select" 
                                                      th:classappend="${#fields.hasErrors('Direcciones[0].Colonia.Municipio.IdMunicipio')} ? ' is-invalid' : ''"
-                                                     th:field="*{Direcciones[0].Colonia.Municipio.IdMunicipio}" onblur="ValidarSelectBlur(this)">
+                                                     th:field="*{Direcciones[0].Colonia.Municipio.IdMunicipio}" onchange="ValidarSelectBlur(this)">
                                                 <option value="0" disabled selected>Seleccione un Municipio</option>
 
                                             </select>
@@ -401,12 +428,31 @@
                                             <span id="errorddlmunicipio" 
                                                   class="invalid-feedback"
                                                   th:if="${#fields.hasErrors('Direcciones[0].Colonia.Municipio.IdMunicipio')}"
-                                                  th:errors="*{Direcciones[0].Colonia.Municipio.IdMunicipio">
+                                                  th:errors="*{Direcciones[0].Colonia.Municipio.IdMunicipio}">
                                             </span>
                                         </div>
 
                                     </div>
-                                    
+                                    <div class="col-md-4 mb-3">
+                                        <label class="form-label">Colonia *</label>
+                                        <div class="input-group has-validation">
+                                            <select  id="ddlcolonia" class="form-select" 
+                                                     th:classappend="${#fields.hasErrors('Direcciones[0].Colonia.IdColonia')} ? ' is-invalid' : ''"
+                                                     th:field="*{Direcciones[0].Colonia.IdColonia}" onchange="ValidarSelectBlur(this)">
+                                                <option value="0" disabled selected>Seleccione una Colonia</option>
+
+                                            </select>
+
+                                            <span id="errorddlcolonia" 
+                                                  class="invalid-feedback"
+                                                  th:if="${#fields.hasErrors('Direcciones[0].Colonia.IdColonia')}"
+                                                  th:errors="*{Direcciones[0].Colonia.IdColonia}">
+                                            </span>
+                                        </div>
+
+
+                                    </div>
+
 
 
                                     <div class="col-md-4 mb-3">
@@ -498,6 +544,52 @@
             var maxDate = (yyyy - 18) + '-' + mm + '-' + dd;
             $("#fechaNacimiento").attr('max', maxDate);
 
+            $('#imagenFile').on('change', function () {
+                const preview = $('#previewImage');
+                const file = this.files[0];
+                const maxSize = 5 * 1024 * 1024; // 5MB
+
+                if (file) {
+
+                    if (!file.type.startsWith('image/')) {
+                        alert('Por favor, selecciona un archivo de imagen válido (JPG, PNG, GIF)');
+                        $(this).val('');
+                        preview.hide().attr('src', '#');
+                        return;
+                    }
+
+                    if (file.size > maxSize) {
+                        alert('El archivo es demasiado grande. Tamaño máximo: 5MB');
+                        $(this).val('');
+                        preview.hide().attr('src', '#');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        preview.attr('src', e.target.result).show();
+                    };
+
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.hide().attr('src', '#');
+                }
+            });
+
+
+            $('form').on('submit', function (e) {
+                const imagenFile = $('#imagenFile')[0].files[0];
+
+                if (imagenFile && imagenFile.size > 5 * 1024 * 1024) {
+                    e.preventDefault();
+                    alert('La imagen es demasiado grande. Máximo 5MB');
+                    return false;
+                }
+
+                return true;
+            });
+
 
             $("#ddlpais").change(function () {
                 var IdPais = $("#ddlpais").val();
@@ -514,12 +606,12 @@
                             $("#ddlmunicipio").append("<option value=0 disabled selected>Selecciona un Municipio</option>");
                             $("#ddlcolonia").append("<option value=0 disabled selected>Selecciona una Colonia</option>");
                             $("#ddlestado").append("<option value=0 disabled selected>Selecciona un Estado</option>");
-                            $("#ddlestado").removeClass('border border-success');
-                            $("#ddlmunicipio").removeClass('border border-success');
-                            $("#ddlcolonia").removeClass('border border-success');
-                            $("#ddlestado").removeClass('border border-danger');
-                            $("#ddlmunicipio").removeClass('border border-danger');
-                            $("#ddlcolonia").removeClass('border border-danger');
+                            $("#ddlestado").removeClass('is-valid');
+                            $("#ddlmunicipio").removeClass('is-valid');
+                            $("#ddlcolonia").removeClass('is-valid');
+                            $("#ddlestado").removeClass('is-invalid');
+                            $("#ddlmunicipio").removeClass('is-invalid');
+                            $("#ddlcolonia").removeClass('is-invalid');
                             $.each(data.Objects, function (i, estado) {
                                 $("#ddlestado").append("<option value=" + estado.IdEstado + ">" + estado.Nombre + "</option>");
                             });
@@ -537,12 +629,12 @@
                     $("#ddlestado").append("<option value=0 disabled selected>Selecciona un Estado</option>");
                     $("#ddlmunicipio").append("<option value=0 disabled selected>Selecciona un Municipio</option>");
                     $("#ddlcolonia").append("<option value=0 disabled selected>Selecciona una Colonia</option>");
-                    $("#ddlestado").removeClass('border border-success');
-                    $("#ddlmunicipio").removeClass('border border-success');
-                    $("#ddlcolonia").removeClass('border border-success');
-                    $("#ddlestado").removeClass('border border-danger');
-                    $("#ddlmunicipio").removeClass('border border-danger');
-                    $("#ddlcolonia").removeClass('border border-danger');
+                    $("#ddlestado").removeClass('is-valid');
+                    $("#ddlmunicipio").removeClass('is-valid');
+                    $("#ddlcolonia").removeClass('is-valid');
+                    $("#ddlestado").removeClass('is-invalid');
+                    $("#ddlmunicipio").removeClass('is-invalid');
+                    $("#ddlcolonia").removeClass('is-invalid');
                 }
 
 
@@ -562,10 +654,10 @@
                             $("#ddlcolonia").append("<option value=0 disabled selected>Selecciona una Colonia</option>");
                             $("#ddlmunicipio").append("<option value=0 disabled selected>Selecciona un Municipio</option>");
 
-                            $("#ddlmunicipio").removeClass('border border-success');
-                            $("#ddlcolonia").removeClass('border border-success');
-                            $("#ddlmunicipio").removeClass('border border-danger');
-                            $("#ddlcolonia").removeClass('border border-danger');
+                            $("#ddlmunicipio").removeClass('is-valid');
+                            $("#ddlcolonia").removeClass('is-valid');
+                            $("#ddlmunicipio").removeClass('is-invalid');
+                            $("#ddlcolonia").removeClass('is-invalid');
                             $.each(data.Objects, function (i, municipio) {
                                 $("#ddlmunicipio").append("<option value=" + municipio.IdMunicipio + ">" + municipio.Nombre + "</option>");
                             });
@@ -580,12 +672,11 @@
                     $("#codigoPostal").val("");
                     $("#ddlmunicipio").append("<option value=0  disabled selected>Selecciona un Municipio</option>");
                     $("#ddlcolonia").append("<option value=0  disabled selected>Selecciona una Colonia</option>");
-                    $("#ddlmunicipio").removeClass('border border-success');
-                    $("#ddlcolonia").removeClass('border border-success');
-                    $("#ddlmunicipio").removeClass('border border-danger');
-                    $("#ddlcolonia").removeClass('border border-danger');
+                    $("#ddlmunicipio").removeClass('is-valid');
+                    $("#ddlcolonia").removeClass('is-valid');
+                    $("#ddlmunicipio").removeClass('is-invalid');
+                    $("#ddlcolonia").removeClass('is-invalid');
                 }
-
 
             });
 
@@ -601,9 +692,9 @@
 
                             $("#ddlcolonia").empty();
                             $("#ddlcolonia").append("<option value=0 disabled selected>Selecciona una Colonia</option>");
-                            $("#ddlcolonia").removeClass('border border-success');
+                            $("#ddlcolonia").removeClass('is-valid');
 
-                            $("#ddlcolonia").removeClass('border border-danger');
+                            $("#ddlcolonia").removeClass('is-invalid');
                             $.each(data.Objects, function (i, colonia) {
                                 $("#ddlcolonia").append("<option data-cp=" + colonia.CodigoPostal + " value=" + colonia.IdColonia + ">" + colonia.Nombre + "</option>");
                             });
@@ -618,10 +709,8 @@
                     $("#ddlcolonia").empty();
                     $("#codigoPostal").val("");
                     $("#ddlcolonia").append("<option value=0 disabled selected>Selecciona una Colonia</option>");
-                    $("#ddlcolonia").removeClass('border border-danger');
-                    $("#ddlcolonia").removeClass('border border-success');
-
-                    $("#ddlcolonia").removeClass('border border-danger');
+                    $("#ddlcolonia").removeClass('is-invalid');
+                    $("#ddlcolonia").removeClass('is-valid');
                 }
 
 
@@ -640,10 +729,7 @@
                 e.preventDefault();
 
                 alert('No se permite pegar texto en este formulario');
-
-
             });
-
         });
 
         function SoloLetras(input, event) {
@@ -655,9 +741,12 @@
                 $("#error" + input.id).text('');
                 $(input).removeClass('is-invalid');
             } else {
+                console.log("¿Existe el elemento de error?:", $("#error" + input.id).length > 0);
+                console.log(input.id);
+
                 event.preventDefault();
                 $(input).addClass('is-invalid');
-                $("#error" + input.id).text('Solo letras').css('color', 'red');
+                $("#error").text('Solo letras').css('color', 'red');
             }
         }
 
@@ -665,25 +754,28 @@
             var regex = /^[a-zA-Z\s]+$/;
             if (regex.test($(input).val())) {
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger');
+                $(input).removeClass('is-invalid');
                 $(input).addClass('is-valid');
             }
         }
 
         function validarCURPBlur(input) {
             var regex = /^[A-Z0-9]{18}$/;
+            var errorElement = $("#error" + input.id);
 
             if (regex.test($(input).val().toUpperCase())) {
                 console.log("Paso la expresión regular");
-                $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger');
-                $(input).addClass('border border-success');
+                errorElement.text('');
+                $(input).removeClass('is-invalid');
+                $(input).addClass('is-valid');
             } else {
-                $("#error" + input.id).text('CURP inválida').css('color', 'red');
-                $(input).addClass('border border-danger');
-                $(input).removeClass('border border-success');
+                console.log("NO Paso la expresión regular");
+                errorElement.text('CURP inválida').css('color', 'red');
+                $(input).addClass('is-invalid');
+                $(input).removeClass('is-valid');
             }
         }
+
 
         function validarEmailBlur(input) {
             var regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -691,25 +783,22 @@
             if (regex.test($(input).val())) {
                 console.log("Paso la expresión regular");
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger');
-                $(input).addClass('border border-success');
+                $(input).removeClass('is-invalid');
+                $(input).addClass('is-valid');
             } else {
-                $("#error" + input.id).text('Correo electrónico inválido').css('color', 'red');
-                $(input).addClass('border border-danger');
-                $(input).removeClass('border border-success');
+                $("#error" + input.id).text('Correo electrónico inválido');
+                $(input).addClass('is-invalid');
+                $(input).removeClass('is-valid');
             }
         }
         function SoloNumeros(input, event) {
-            console.log(input);
-            console.log(event);
+
             var valorCompleto = $(input).val() + event.key;
-            console.log(valorCompleto);
-            console.log("ID:", input.id);
 
             if (valorCompleto.length > 10) {
                 console.log("Longitud excede el límite");
                 event.preventDefault();
-                $(input).addClass('border border-danger');
+                $(input).addClass('is-invalid');
                 $("#error" + input.id).text('Máximo 10 dígitos').css('color', 'red');
                 return false;
             }
@@ -719,12 +808,14 @@
             if (regex.test(valorCompleto)) {
                 console.log("Paso la expresión regular");
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger');
+                $(input).removeClass('is-invalid');
             } else {
                 console.log("NO paso la expresión regular");
+
                 event.preventDefault();
-                $(input).addClass('border border-danger');
+                $(input).addClass('is-invalid');
                 $("#error" + input.id).text('Solo números').css('color', 'red');
+                console.log($("#error" + input.id).text());
             }
         }
 
@@ -733,21 +824,19 @@
             var valor = $(input).val();
 
             if (valor.length > 10) {
-                $(input).addClass('border border-danger');
+                $(input).addClass('is-invalid');
                 $("#error" + input.id).text('Máximo 10 dígitos').css('color', 'red');
             } else if (regex.test(valor)) {
                 console.log("Paso la expresión regular");
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger');
-                $(input).addClass('border border-success');
+                $(input).removeClass('is-invalid');
+                $(input).addClass('is-valid');
             }
         }
         function SoloLetrasNumerosEspacios(input, event) {
-            console.log(input);
-            console.log(event);
+
             var valorCompleto = $(input).val() + event.key;
-            console.log(valorCompleto);
-            console.log("ID:", input.id);
+
 
             // Expresión regular: letras (mayúsculas y minúsculas), números y espacios
             var regex = /^[a-zA-Z0-9\s]+$/;
@@ -755,25 +844,25 @@
             if (regex.test(valorCompleto)) {
                 console.log("Paso la expresión regular");
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger');
+                $(input).removeClass('is-invalid');
             } else {
                 console.log("NO paso la expresión regular");
                 event.preventDefault();
-                $(input).addClass('border border-danger');
+                $(input).addClass('is-invalid');
                 $("#error" + input.id).text('Solo letras, números y espacios').css('color', 'red');
             }
         }
 
         function SoloLetrasNumerosEspaciosBlur(input) {
-            var regex = /	/;
+            var regex = /^[a-zA-Z0-9\\s]+$/;
 
             if (regex.test($(input).val())) {
                 console.log("Paso la expresión regular");
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger');
-                $(input).addClass('border border-success');
+                $(input).removeClass('is-invalid');
+                $(input).addClass('is-valid');
             } else {
-                $(input).addClass('border border-danger');
+                $(input).addClass('is-invalid');
                 $("#error" + input.id).text('Solo letras, números y espacios').css('color', 'red');
             }
         }
@@ -783,21 +872,27 @@
 
             if (valorCompleto !== "0") {
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger');
+                $(input).removeClass('is-invalid');
+                $(input).addClass('is-valid');
             } else {
                 event.preventDefault();
-                $(input).addClass('border border-danger');
+                $(input).addClass('is-invalid');
                 $("#error" + input.id).text('Seleccione una opción válida').css('color', 'red');
             }
         }
 
         function ValidarSelectBlur(input) {
             var valor = $(input).val();
+            console.log(valor);
 
-            if (valor !== "0") {
+            if (valor !== null) {
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger');
-                $(input).addClass('border border-success');
+                $(input).removeClass('is-invalid');
+                $(input).addClass('is-valid');
+            } else {
+                $("#error" + input.id).text('Selecciona una opción Valida');
+                $(input).removeClass('is-valid');
+                $(input).addClass('is-invalid');
             }
         }
 
@@ -810,10 +905,11 @@
             if (valorCompleto.length > 0) {
                 if (regex.test(valorCompleto)) {
                     $("#error" + input.id).text('');
-                    $(input).removeClass('border border-danger');
+                    $(input).removeClass('is-invalid');
+                    $(input).addClass('is-valid');
                 } else {
                     event.preventDefault();
-                    $(input).addClass('border border-danger');
+                    $(input).addClass('is-invalid');
                     $("#error" + input.id).text('Mínimo: 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 caracter especial').css('color', 'red');
                 }
             }
@@ -825,14 +921,14 @@
 
             if (valor.length === 0) {
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger border-success');
+                $(input).removeClass('is-valid');
             } else if (regex.test(valor)) {
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger');
+                $(input).removeClass('is-valid');
                 $(input).addClass('is-invalid');
             } else {
-                $(input).addClass('border border-danger');
-                $(input).removeClass('border border-success');
+                $(input).addClass('is-invalid');
+                $(input).removeClass('is-valid');
                 $("#error" + input.id).text('Mínimo: 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 caracter especial').css('color', 'red');
             }
         }
@@ -843,15 +939,15 @@
 
             if (confirm.length === 0) {
                 $("#errorconfirmPassword").text('');
-                $("#confirmPassword").removeClass('border border-danger border-success');
+                $("#confirmPassword").removeClass('is-valid');
             } else if (password === confirm) {
                 $("#errorconfirmPassword").text('');
-                $("#confirmPassword").removeClass('border border-danger');
-                $("#confirmPassword").addClass('border border-success');
+                $("#confirmPassword").removeClass('is-invalid');
+                $("#confirmPassword").addClass('is-valid');
                 return true;
             } else {
-                $("#confirmPassword").addClass('border border-danger');
-                $("#confirmPassword").removeClass('border border-success');
+                $("#confirmPassword").addClass('is-invalid');
+                $("#confirmPassword").removeClass('is-valid');
                 $("#errorconfirmPassword").text('Las contraseñas no coinciden').css('color', 'red');
                 return false;
             }
@@ -862,7 +958,7 @@
 
             if (fechaNacimiento === "") {
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger border-success');
+                $(input).removeClass('is-valid');
                 return false;
             }
 
@@ -878,16 +974,18 @@
 
             if (edad >= 18) {
                 $("#error" + input.id).text('');
-                $(input).removeClass('border border-danger');
-                $(input).addClass('border border-success');
+                $(input).removeClass('is-invalid');
+                $(input).addClass('is-valid');
                 return true;
             } else {
-                $(input).addClass('border border-danger');
-                $(input).removeClass('border border-success');
+                $(input).addClass('is-invalid');
+                $(input).removeClass('is-valid');
                 $("#error" + input.id).text('Debe ser mayor de 18 años').css('color', 'red');
                 return false;
             }
         }
+
+
 
 
     </script>

@@ -5,11 +5,11 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-
-        <!-- Bootstrap Icons -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
     </head>
 
     <body class="bg-light">
@@ -53,8 +53,14 @@
 
                                 <!-- Usuario -->
                                 <td class="text-center">
+                                    <img th:src="${usuario.ImagenFile != null} 
+                                         ? 'data:image/jpeg;base64,' + ${usuario.ImagenFile} 
+                                         : 'data:image/png;base64,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'"
+                                         class="img-fluid img-thumbnail"
+                                         style="max-width: 150px; max-height: 150px;"
+                                         alt="Foto de perfil">
                                     <div class="fw-bold" th:text="${usuario.UserName ?: 'Sin usuario'}"></div>
-                                   
+
                                 </td>
 
                                 <!-- Nombre -->
@@ -100,7 +106,7 @@
                                             <span th:text="${dir.Colonia?.Nombre}"></span><br>
                                             <span th:text="|CP ${dir.Colonia?.CodigoPostal} ${dir.Colonia.Municipio?.Nombre}|"></span><br>
                                             <span th:text="|${dir.Colonia.Municipio.Estado?.Nombre},  ${dir.Colonia.Municipio.Estado.Pais?.Nombre}|"></span><br>
-                                            
+
                                         </div>
                                     </div>
                                     <div th:if="${#lists.isEmpty(usuario.Direcciones)}" class="text-muted small">
@@ -134,10 +140,14 @@
                                            class="btn btn-warning text-white" title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <a th:href="@{|Eliminar/${usuario.IdUsuario}|}" 
-                                           class="btn btn-danger" title="Eliminar">
+                                        <a  th:id="@{|${usuario.IdUsuario}|}" 
+                                            onclick="abrirModal(this)"
+                                            class="btn btn-danger" title="Eliminar">
                                             <i class="bi bi-trash"></i>
                                         </a>
+                                        
+
+
                                     </div>
                                 </td>
 
@@ -149,6 +159,53 @@
             </div>
 
         </div>
+        <div class="modal fade" id="miModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Eliminar Usuario</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        ¿Seguro que deseas eliminar este usuario?
+                        <input type="hidden" id="rutaEliminar">
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="confirmarEliminacion()">
+                            Eliminar
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
 
     </body>
+    <script>
+        function abrirModal(elemento) {
+
+            var ruta = $(elemento).attr("id");
+
+            $("#rutaEliminar").val(ruta);
+
+            var modal = new bootstrap.Modal($("#miModal")[0]);
+            modal.show();
+        }
+
+
+        function confirmarEliminacion() {
+
+            const ruta = document.getElementById('rutaEliminar').value;
+            window.location.href = "Usuario/Delete/" + ruta;
+        }
+    </script>
+
 </html>

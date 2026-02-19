@@ -15,6 +15,7 @@ public class Estado {
     public Pais Pais;
 
     public Estado() {
+        this.Pais = new Pais();
     }
 
     
