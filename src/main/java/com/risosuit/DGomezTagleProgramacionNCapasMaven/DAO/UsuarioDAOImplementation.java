@@ -271,10 +271,124 @@ public class UsuarioDAOImplementation implements IUsuario {
     @Override
     public Result Update(Usuario usuario) {
         Result Result = new Result();
-        
+        try {
+            JdbcTemplate.execute("{CALL UsuarioUpdateSP(?,?,?,?,?,?,?,?,?,?,?,?)}", (CallableStatementCallback<Boolean>) (callablestatement) -> {
+                callablestatement.setInt(1, usuario.getIdUsuario());
+                callablestatement.setString(2, usuario.getUserName());
+                callablestatement.setString(3, usuario.getNombre());
+                callablestatement.setString(4, usuario.getApellidoPaterno());
+                callablestatement.setString(5, usuario.getApellidoMaterno());
+                callablestatement.setString(6, usuario.getEmail());
+                callablestatement.setDate(7, java.sql.Date.valueOf(usuario.getFechaNacimiento()));
+                callablestatement.setString(8, usuario.getSexo());
+                callablestatement.setString(9, usuario.getTelefono());
+                callablestatement.setString(10, usuario.getCelular());
+                callablestatement.setString(11, usuario.getCURP());
+                callablestatement.setInt(12, usuario.Rol.getIdRol());
+                callablestatement.execute();
+
+                if (callablestatement.executeUpdate() > 0) {
+                    Result.Correct = true;
+                } else {
+                    Result.Correct = false;
+                    Result.MessageException = "Algo salió mal";
+                }
+
+                return true;
+            });
+        } catch (Exception e) {
+            Result.Correct = false;
+            Result.MessageException = e.getLocalizedMessage();
+
+        }
+
         return Result;
-    
+
     }
-    
+
+    @Override
+    public Result Busqueda(Usuario usuario) {
+        Result result = new Result();
+        result.Objects = new ArrayList<>();
+        JdbcTemplate.execute("{CALL BusquedaSP(?,?,?,?,?,?)}", (CallableStatementCallback<Boolean>) callableStatement -> {
+            callableStatement.registerOutParameter(1, java.sql.Types.REF_CURSOR);
+            callableStatement.setString(2, usuario.getNombre());
+            callableStatement.setString(3, usuario.getApellidoPaterno());
+            callableStatement.setString(4, usuario.getApellidoMaterno());
+            callableStatement.setString(5, usuario.getSexo());
+            callableStatement.setInt(6, usuario.Rol.getIdRol());
+            callableStatement.execute();
+            ResultSet resultset = (ResultSet) callableStatement.getObject(1);
+            Usuario usuarioActual = null;
+            int idUsuarioActual = 0;
+            result.Objects = new ArrayList<>();
+
+            while (resultset.next()) {
+                int idUsuario = resultset.getInt("IdUsuario");
+                // Nuevo usuario
+                if (usuarioActual == null || idUsuarioActual != idUsuario) {
+                    usuarioActual = new Usuario();
+                    usuarioActual.Rol = new Rol();
+                    usuarioActual.Direcciones = new ArrayList<>();
+
+                    usuarioActual.setIdUsuario(idUsuario);
+                    usuarioActual.setUserName(resultset.getString("UserName"));
+                    usuarioActual.setNombre(resultset.getString("NombreUsuario"));
+                    usuarioActual.setApellidoPaterno(resultset.getString("ApellidoPaterno"));
+                    usuarioActual.setApellidoMaterno(resultset.getString("ApellidoMaterno"));
+                    usuarioActual.setEmail(resultset.getString("Email"));
+                    usuarioActual.setPassword(resultset.getString("Password"));
+                    usuarioActual.setFechaNacimiento(resultset.getDate("FechaNacimiento").toLocalDate());
+                    usuarioActual.setSexo(resultset.getString("Sexo"));
+                    usuarioActual.setTelefono(resultset.getString("Telefono"));
+                    usuarioActual.setCelular(resultset.getString("Celular"));
+                    usuarioActual.setCURP(resultset.getString("CURP"));
+                    usuarioActual.setUltimoAcceso(resultset.getTimestamp("UltimoAcceso").toLocalDateTime());
+
+                    usuarioActual.Rol.setIdRol(resultset.getInt("IdRol"));
+                    usuarioActual.Rol.setNombre(resultset.getString("NombreRol"));
+                    usuarioActual.setImagenFile(resultset.getString("Imagen"));
+
+                    result.Objects.add(usuarioActual);
+                    idUsuarioActual = idUsuario;
+                }
+
+                //Dirección (si existe)
+                int idDireccion = resultset.getInt("IdDireccion");
+                if (idDireccion != 0) {
+
+                    Direccion direccion = new Direccion();
+
+                    direccion.Colonia.Municipio.Estado.Pais = new Pais();
+
+                    direccion.setIdDireccion(idDireccion);
+                    direccion.setCalle(resultset.getString("Calle"));
+                    direccion.setNumeroExterior(resultset.getString("NumeroExterior"));
+                    direccion.setNumeroInterior(resultset.getString("NumeroInterior"));
+
+                    direccion.Colonia.setIdColonia(resultset.getInt("IdColonia"));
+                    direccion.Colonia.setNombre(resultset.getString("NombreColonia"));
+                    direccion.Colonia.setCodigoPostal(resultset.getString("CodigoPostal"));
+
+                    direccion.Colonia.Municipio.setIdMunicipio(resultset.getInt("IdMunicipio"));
+                    direccion.Colonia.Municipio.setNombre(resultset.getString("NombreMunicipio"));
+
+                    direccion.Colonia.Municipio.Estado.setIdEstado(resultset.getInt("IdEstado"));
+                    direccion.Colonia.Municipio.Estado.setNombre(resultset.getString("NombreEstado"));
+
+                    direccion.Colonia.Municipio.Estado.Pais.setIdPais(resultset.getInt("IdPais"));
+                    direccion.Colonia.Municipio.Estado.Pais.setNombre(resultset.getString("NombrePais"));
+
+                    usuarioActual.Direcciones.add(direccion);
+                }
+            }
+
+            result.Correct = true;
+
+            return true;
+        });
+        return result;
+
+    }
 
 }

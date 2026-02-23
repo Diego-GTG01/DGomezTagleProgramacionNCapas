@@ -25,17 +25,28 @@ public class DireccionDAOImplementation implements IDireccion {
     @Override
     public Result Update(Direccion Direccion) {
         Result Result = new Result();
+        Result.Object = Direccion;
         try {
-            jdbcTemplate.execute("{CALL DireccionUpdateSP(?)}", (CallableStatementCallback<Boolean>) callablestatement ->{
-            callablestatement.setInt(1, Direccion.getIdDireccion());
-            callablestatement.setString(2, Direccion.getCalle());
-            callablestatement.setString(3, Direccion.getNumeroInterior());
-            callablestatement.setString(4, Direccion.getNumeroExterior());
-            callablestatement.setString(5, Direccion.getNumeroExterior());
-            return true;
+            jdbcTemplate.execute("{CALL DireccionUpdateSP(?,?,?,?,?)}", (CallableStatementCallback<Boolean>) callablestatement -> {
+                callablestatement.setInt(1, Direccion.getIdDireccion());
+                callablestatement.setString(2, Direccion.getCalle());
+                callablestatement.setString(3, Direccion.getNumeroInterior());
+                callablestatement.setString(4, Direccion.getNumeroExterior());
+                callablestatement.setInt(5, Direccion.Colonia.getIdColonia());
+
+                if (callablestatement.executeUpdate() > 0) {
+                    Result.Correct = true;
+                } else {
+                    Result.Correct = false;
+                    Result.MessageException = "Algo Salió Mal";
+                }
+
+                return true;
             });
 
         } catch (Exception e) {
+            Result.Correct = false;
+            Result.MessageException = e.getLocalizedMessage();
         }
         return Result;
     }
@@ -46,7 +57,6 @@ public class DireccionDAOImplementation implements IDireccion {
         try {
             jdbcTemplate.execute("{CALL DireccionDeleteSP(?)}", (CallableStatementCallback<Boolean>) callablestatement -> {
                 callablestatement.setInt(1, idDireccion);
-                callablestatement.execute();
                 if (callablestatement.executeUpdate() > 0) {
                     Result.Correct = true;
                 }
@@ -110,7 +120,6 @@ public class DireccionDAOImplementation implements IDireccion {
                 callablestatement.setString(3, Direccion.getNumeroExterior());
                 callablestatement.setInt(4, Direccion.Colonia.getIdColonia());
                 callablestatement.setInt(5, idUsuario);
-                callablestatement.execute();
                 if (callablestatement.executeUpdate() > 0) {
                     Result.Correct = true;
                 }
@@ -121,6 +130,34 @@ public class DireccionDAOImplementation implements IDireccion {
         } catch (Exception e) {
             Result.Correct = false;
             Result.MessageException = e.getLocalizedMessage();
+        }
+
+        return Result;
+
+    }
+
+    @Override
+    public Result getDirecionByCodigoPostal(String CodigoPostal) {
+        Result Result = new Result();
+        
+        try {
+            jdbcTemplate.execute("{CALL ColoniaByCodigoPostal(?,?)}", (CallableStatementCallback<Boolean>) (callablestatement) -> {
+                callablestatement.setString(1, CodigoPostal);
+                callablestatement.registerOutParameter(2, java.sql.Types.REF_CURSOR);
+                callablestatement.execute();
+                ResultSet Resultset= (ResultSet) callablestatement.getObject(2);
+                if (Resultset.next()) {
+//                    Direccion.Colonia.setIdColonia(Resultset.getInt("IDCOLONIA"));
+//                    Direccion.Colonia.set(Resultset.getInt("IDCOLONIA"));
+//                    Direccion.Colonia.Municipio.setIdMunicipio(Resultset.getInt("IDCOLONIA"));
+//                    Direccion.Colonia.setIdColonia(Resultset.getInt("IDCOLONIA"));
+//                    Direccion.Colonia.setIdColonia(Resultset.getInt("IDCOLONIA"));
+//                    Direccion.Colonia.setIdColonia(Resultset.getInt("IDCOLONIA"));
+                    
+                }
+                return true;
+            });
+        } catch (Exception e) {
         }
 
         return Result;

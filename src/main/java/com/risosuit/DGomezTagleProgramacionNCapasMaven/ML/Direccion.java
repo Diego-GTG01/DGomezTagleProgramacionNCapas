@@ -21,6 +21,8 @@ public class Direccion {
     private String NumeroInterior;
     @Valid
     public Colonia Colonia;
+    
+    
 
     public Direccion() {
         this.Colonia= new Colonia();

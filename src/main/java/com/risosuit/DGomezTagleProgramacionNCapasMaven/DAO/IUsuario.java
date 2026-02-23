@@ -19,5 +19,6 @@ public interface IUsuario {
     public Result Delete(int idUsuario);
     public Result UpdateImagen(Usuario usuario);
     public Result Update(Usuario usuario);
+    public Result Busqueda(Usuario usuario);
     
 }

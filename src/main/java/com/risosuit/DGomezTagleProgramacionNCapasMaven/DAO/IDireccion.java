@@ -16,6 +16,7 @@ public interface IDireccion {
     public Result Update(Direccion Direccion);
     public Result Delete(int idDireccion);
     public Result GetByID(int idDireccion);
+        public Result getDirecionByCodigoPostal(String CodigoPostal);
     
     
 }

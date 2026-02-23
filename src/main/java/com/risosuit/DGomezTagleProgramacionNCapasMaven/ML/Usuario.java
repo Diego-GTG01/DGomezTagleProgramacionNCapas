@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,6 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 public class Usuario {
 
     private int IdUsuario;
+    private String ImagenFile;
     @NotEmpty(message = "Este campo no Puede estar vacio")
     @Size(min = 3, max = 50, message = "Debe tener más de 3 caracteres")
     @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Ingrese Solo letras, números y espacios")
@@ -55,11 +57,11 @@ public class Usuario {
     public Rol Rol;
     @Valid
     public List<Direccion> Direcciones;
-    @NotEmpty(message = "Este campo no Puede estar vacio")
-    private String ImagenFile;
+    
 
     public Usuario() {
         this.Rol = new Rol();
+        this.Direcciones = new ArrayList<>();
     }
 
     public String getImagenFile() {

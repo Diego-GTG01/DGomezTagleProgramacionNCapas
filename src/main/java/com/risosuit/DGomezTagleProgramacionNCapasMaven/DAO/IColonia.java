@@ -13,4 +13,6 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
 public interface IColonia {
     public Result getColoniaByMunicipio(int IdMunicipio);
     
+    public Result getColoniaByCodigoPostal(String CodigoPostal);
+    
 }
