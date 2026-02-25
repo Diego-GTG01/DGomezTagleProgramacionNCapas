@@ -198,6 +198,7 @@ public class Usuario {
         Cadena += "\n===========================================";
         Cadena += "\nUsuario";
         Cadena += "\nIdUsuario = " + IdUsuario;
+        Cadena += "\nNombreUsuario = " + UserName;
         Cadena += "\nNombre = " + Nombre;
         Cadena += "\nApellidoPaterno = " + ApellidoPaterno;
         Cadena += "\nApellidoMaterno = " + ApellidoMaterno;

@@ -1,0 +1,4 @@
+marialopez|Maria|Lopez|Martinez|maria.lopez@email.com|Maria2024|1998-08-15|FF|5523456789|5587654321|LOMM980815MDFRRS02|4|Calle Juarez|5B|120|102
+carlosruiz|Carlos|Ruiz|Gonzalez|carlos.ruiz@email.com|Carlos123|1992-03-20|MM|5534567890|5576543210|RUGG920320HDFRRL03|4|Av Insurgentes|7|45|103
+Anatorres|Ana|Torres|Sanchez|ana.torres@email.com|Ana2024|1996-11-25|FF|5545678901|5565432109|TOSA961125MDFRRS04|4|Calle Hidalgo|3A|67|104
+luisfernandez|Luis|Fernandez|Castro|luis.fernandez@email.com|Luis123|1994-07-30|MM|5556789012|5554321098|FECL940730HDFRRS05|4|Av Reforma|9|89|101

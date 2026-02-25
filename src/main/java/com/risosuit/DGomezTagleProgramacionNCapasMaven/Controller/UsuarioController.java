@@ -8,14 +8,21 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.PaisDAOImplementation
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.RolDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.UsuarioDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Direccion;
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.ErroresArchivo;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Pais;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Rol;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario;
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.Service.ValidationService;
 import jakarta.validation.Valid;
+import jakarta.validation.Validator;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
@@ -24,8 +31,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,6 +50,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("Usuario")
 public class UsuarioController {
+
+    @Autowired
+    private ValidationService validationservice;
 
     @Autowired
     private UsuarioDAOImplementation usuarioDAOImplementation;
@@ -69,13 +83,14 @@ public class UsuarioController {
 
     }
 
-//    @GetMapping("{idUsuario}")
-//    public String GetById(@PathVariable("idUsuario") int idUsuario, Model model) {
-//        Result result = usuarioDAOImplementation.GetById(idUsuario);
-//        model.addAttribute("usuarios", result.Object);
-//        return "GetAll";
-//
-//    }
+    // @GetMapping("{idUsuario}")
+    // public String GetById(@PathVariable("idUsuario") int idUsuario, Model model)
+    // {
+    // Result result = usuarioDAOImplementation.GetById(idUsuario);
+    // model.addAttribute("usuarios", result.Object);
+    // return "GetAll";
+    //
+    // }
     @GetMapping("{idUsuario}")
     public String GetByIdDetalle(@PathVariable("idUsuario") int idUsuario, Model model) {
         Result result = usuarioDAOImplementation.GetById(idUsuario);
@@ -92,11 +107,175 @@ public class UsuarioController {
 
         Result result = usuarioDAOImplementation.Busqueda(usuario);
         model.addAttribute("usuarios", result.Objects);
-        model.addAttribute("Usuario", new Usuario());
+        model.addAttribute("Usuario", usuario);
         model.addAttribute("Roles", rolDAOImplementation.GetAll().Objects);
 
         return "GetAll";
 
+    }
+
+    @GetMapping("cargamasiva")
+    public String CargaMasiva() {
+        return "CargaMasiva";
+    }
+
+    @PostMapping("cargamasiva")
+    public String CargaMasiva(@RequestParam("archivo") MultipartFile archivo, RedirectAttributes redirectAttributes) {
+        try {
+            if (archivo != null) {
+                String rutaBase = System.getProperty("user.dir");
+                String rutaCarpeta = "src/main/resources/archivosCM";
+                String fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmSS"));
+                String NombreArchivo = fecha + archivo.getOriginalFilename();
+                String rutaArchivo = rutaBase + "/" + rutaCarpeta + "/" + NombreArchivo;
+                String extension = archivo.getOriginalFilename().split("\\.")[1];
+                List<Usuario> Usuarios = null;
+                if (extension.contains("txt")) {
+                    archivo.transferTo(new File(rutaArchivo));
+                    Usuarios = LecturaArchivoTxt(new File(rutaArchivo));
+
+                } else if (extension.contains("xlsx")) {
+                    Usuarios = LecturaArchivoXLSX(new File(rutaArchivo));
+
+                } else {
+
+                    System.out.println("Extensión Erronea");
+                }
+
+                List<ErroresArchivo> errores = ValidarDatos(Usuarios);
+                if (errores.isEmpty()) {
+                    System.out.println("Sin errores ");
+                    redirectAttributes.addFlashAttribute("Success","El archivo fue leido Correctamente" );
+                    return "redirect:cargamasiva";
+                } else {
+                    System.out.println(errores);
+                    List<String> listaStrings = new ArrayList<>();
+                    for (ErroresArchivo error : errores) {
+                        listaStrings.add(error.toString());
+                    }
+                    for (Usuario usuario : Usuarios) {
+                        System.out.println(usuario.toString());
+
+                    }
+
+                    redirectAttributes.addFlashAttribute("errores", listaStrings);
+                    return "redirect:cargamasiva";
+                }
+
+            }
+        } catch (Exception e) {
+            System.out.println(e.getLocalizedMessage());
+        }
+
+        return "CargaMasiva";
+    }
+
+    public List<Usuario> LecturaArchivoTxt(File archivo) {
+        List<Usuario> Usuarios = new ArrayList<>();
+        try (BufferedReader bufferedreader = new BufferedReader(new FileReader(archivo))) {
+            String linea;
+            int NumeroLinea = 0;
+
+            while ((linea = bufferedreader.readLine()) != null) {
+                NumeroLinea++;
+                if (linea.trim().isEmpty()) {
+                    continue;
+                }
+                String[] Datos = linea.split("\\|");
+                if (Datos.length < 16) {
+                    System.out.println("La Linea " + NumeroLinea + " NO TIENE EL FORMATO CORRECTO");
+                    System.out.println("Campos encontrados: " + Datos.length);
+                    continue;
+                }
+                try {
+                    Usuario Usuario = new Usuario();
+                    Usuario.setUserName(Datos[0]);
+                    Usuario.setNombre(Datos[1]);
+                    Usuario.setApellidoPaterno(Datos[2]);
+                    Usuario.setApellidoMaterno(Datos[3]);
+                    Usuario.setEmail(Datos[4]);
+                    Usuario.setPassword(Datos[5]);
+                    if (Datos.length > 6 && !Datos[6].trim().isEmpty()) {
+                        Usuario.setFechaNacimiento(LocalDate.parse(Datos[6].trim()));
+                    }
+                    Usuario.setSexo(limpiarCampo(Datos[7]));
+                    Usuario.setTelefono(limpiarCampo(Datos[8]));
+                    Usuario.setCelular(limpiarCampo(Datos[9]));
+                    Usuario.setCURP(limpiarCampo(Datos[10]));
+                    Usuario.Rol.setIdRol(Integer.parseInt(Datos[11].trim()));
+
+                    Direccion direccion = new Direccion();
+                    direccion.setCalle(limpiarCampo(Datos[12]));
+                    direccion.setNumeroInterior(limpiarCampo(Datos[13]));
+                    direccion.setNumeroExterior(limpiarCampo(Datos[14]));
+
+                    if (Datos.length > 15 && !Datos[15].trim().isEmpty()) {
+                        direccion.Colonia.setIdColonia(Integer.parseInt(Datos[15].trim()));
+                        direccion.Colonia.Municipio.setIdMunicipio(1);
+                        direccion.Colonia.Municipio.Estado.setIdEstado(1);
+                        direccion.Colonia.Municipio.Estado.Pais.setIdPais(1);
+                    }
+
+                    Usuario.getDirecciones().add(direccion);
+                    Usuarios.add(Usuario);
+
+                } catch (Exception e) {
+
+                    System.out.println("Error procesando línea " + NumeroLinea + ": " + e.getMessage());
+                    e.printStackTrace();
+                }
+
+            }
+            System.out.println("Total de usuarios leídos: " + Usuarios.size());
+
+        } catch (Exception e) {
+            System.out.println(e.getLocalizedMessage());
+        }
+
+        return Usuarios;
+    }
+
+    public List<Usuario> LecturaArchivoXLSX(File archivo) {
+        List<Usuario> Usuarios = new ArrayList<>();
+
+        return Usuarios;
+    }
+
+    public List<ErroresArchivo> ValidarDatos(List<Usuario> Usuarios) {
+        List<ErroresArchivo> errores = new ArrayList<>();
+        int fila = 0;
+
+        for (Usuario usuario : Usuarios) {
+            fila++;
+
+            BindingResult bindingResult = validationservice.ValidateObject(usuario);
+
+            if (bindingResult.hasErrors()) {
+                ErroresArchivo errorArchivo = new ErroresArchivo();
+                errorArchivo.fila = fila;
+                errorArchivo.dato = "";
+                errorArchivo.descripcion = "";
+
+                for (ObjectError objectError : bindingResult.getAllErrors()) {
+                    if (objectError instanceof FieldError) {
+                        FieldError fieldError = (FieldError) objectError;
+                        errorArchivo.dato += fieldError.getField() + " ";
+                        errorArchivo.descripcion += fieldError.getDefaultMessage() + " ";
+                    }
+                }
+
+                errores.add(errorArchivo);
+            }
+        }
+
+        return errores;
+    }
+
+    private String limpiarCampo(String campo) {
+        if (campo == null || campo.trim().isEmpty() || campo.trim().equals("null")) {
+            return "";
+        }
+        return campo.trim();
     }
 
     @PostMapping("guardarImagen")
@@ -126,7 +305,8 @@ public class UsuarioController {
     }
 
     @GetMapping("Delete/{idUsuario}")
-    public String DeleteUsuario(@PathVariable("idUsuario") int idUsuario, Model model, RedirectAttributes redirectAttributes) {
+    public String DeleteUsuario(@PathVariable("idUsuario") int idUsuario, Model model,
+            RedirectAttributes redirectAttributes) {
         Result result = usuarioDAOImplementation.Delete(idUsuario);
         if (result.Correct) {
             redirectAttributes.addFlashAttribute("SuccessDeleteUsuario", "El usuario fue eliminado correctamente");
@@ -204,7 +384,8 @@ public class UsuarioController {
     }
 
     @PostMapping("/UpdateUser/{idUsuario}")
-    public String UpdateUsuario(@PathVariable("idUsuario") int idUsuario, @Valid @ModelAttribute("Usuario") Usuario usuario,
+    public String UpdateUsuario(@PathVariable("idUsuario") int idUsuario,
+            @Valid @ModelAttribute("Usuario") Usuario usuario,
             BindingResult bindingresult,
             Model model, RedirectAttributes redirectAttributes) {
 
@@ -254,7 +435,8 @@ public class UsuarioController {
 
             model.addAttribute("paises", paisDAOImplementation.GetAll().Objects);
             redirectAttributes.addFlashAttribute("direccion", direccion);
-            redirectAttributes.addFlashAttribute("ErrorAddDireccion", "Direccion No Fue Agregado correctamente, Verifique los datos");
+            redirectAttributes.addFlashAttribute("ErrorAddDireccion",
+                    "Direccion No Fue Agregado correctamente, Verifique los datos");
             return "redirect:/Usuario/" + idUsuario;
 
         }
