@@ -40,7 +40,9 @@ public class EstadoDAOImplementation implements IEstado {
                     estado.setNombre(resultset.getString("Nombre"));
                     result.Objects.add(estado);
                     
-                }result.Correct= true;
+                }
+                resultset.close();
+                result.Correct= true;
             
             return true;
             });

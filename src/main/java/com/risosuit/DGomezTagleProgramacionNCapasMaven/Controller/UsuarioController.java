@@ -9,34 +9,39 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.RolDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.UsuarioDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Direccion;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.ErroresArchivo;
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Pais;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Rol;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.Service.ValidationService;
+
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import jakarta.validation.Validator;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
+
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -116,11 +121,14 @@ public class UsuarioController {
 
     @GetMapping("cargamasiva")
     public String CargaMasiva() {
+        
         return "CargaMasiva";
     }
 
     @PostMapping("cargamasiva")
-    public String CargaMasiva(@RequestParam("archivo") MultipartFile archivo, RedirectAttributes redirectAttributes) {
+    public String CargaMasiva(@RequestParam("archivo") MultipartFile archivo,
+            RedirectAttributes redirectAttributes, HttpSession session) {
+        
         try {
             if (archivo != null) {
                 String rutaBase = System.getProperty("user.dir");
@@ -135,6 +143,7 @@ public class UsuarioController {
                     Usuarios = LecturaArchivoTxt(new File(rutaArchivo));
 
                 } else if (extension.contains("xlsx")) {
+                    archivo.transferTo(new File(rutaArchivo));
                     Usuarios = LecturaArchivoXLSX(new File(rutaArchivo));
 
                 } else {
@@ -145,7 +154,10 @@ public class UsuarioController {
                 List<ErroresArchivo> errores = ValidarDatos(Usuarios);
                 if (errores.isEmpty()) {
                     System.out.println("Sin errores ");
-                    redirectAttributes.addFlashAttribute("Success","El archivo fue leido Correctamente" );
+                    redirectAttributes.addFlashAttribute("Success", "El archivo fue leido Correctamente");
+                    String idArchivo = fecha;
+                    session.setAttribute("idArchivoActual", idArchivo);
+                    session.setAttribute("ruta_" + idArchivo, rutaArchivo);
                     return "redirect:cargamasiva";
                 } else {
                     System.out.println(errores);
@@ -236,7 +248,52 @@ public class UsuarioController {
     }
 
     public List<Usuario> LecturaArchivoXLSX(File archivo) {
-        List<Usuario> Usuarios = new ArrayList<>();
+        List<Usuario> Usuarios = null;
+        try (InputStream inputstream = new FileInputStream(archivo);
+                XSSFWorkbook workbook = new XSSFWorkbook(inputstream)) {
+
+            Usuarios = new ArrayList<>();
+            XSSFSheet sheet = workbook.getSheetAt(0);
+            DataFormatter fmt = new DataFormatter();
+            for (Row row : sheet) {
+                Usuario Usuario = new Usuario();
+                Usuario.setUserName(row.getCell(0).toString());
+                Usuario.setNombre(row.getCell(1).toString());
+                Usuario.setApellidoPaterno(row.getCell(2).toString());
+                Usuario.setApellidoMaterno(row.getCell(3).toString());
+                Usuario.setEmail(row.getCell(4).toString());
+                Usuario.setPassword(row.getCell(5).toString());
+
+                if (row.getCell(6) != null && row.getCell(6).getCellType() != CellType.BLANK) {
+
+                    Usuario.setFechaNacimiento(LocalDate.parse(row.getCell(6).getLocalDateTimeCellValue()
+                            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
+                }
+                Usuario.setSexo(limpiarCampo(row.getCell(7).toString()));
+                Usuario.setTelefono(limpiarCampo(fmt.formatCellValue(row.getCell(8))));
+                Usuario.setCelular(limpiarCampo(fmt.formatCellValue(row.getCell(9))));
+                Usuario.setCURP(limpiarCampo(row.getCell(10).toString()));
+                Usuario.Rol.setIdRol((int) row.getCell(11).getNumericCellValue());
+
+                Direccion direccion = new Direccion();
+                direccion.setCalle(limpiarCampo(row.getCell(12).toString()));
+
+                direccion.setNumeroInterior(fmt.formatCellValue(row.getCell(13)));
+                direccion.setNumeroExterior(fmt.formatCellValue(row.getCell(14)));
+
+                direccion.Colonia.setIdColonia((int) (row.getCell(15).getNumericCellValue()));
+                direccion.Colonia.Municipio.setIdMunicipio(1);
+                direccion.Colonia.Municipio.Estado.setIdEstado(1);
+                direccion.Colonia.Municipio.Estado.Pais.setIdPais(1);
+
+                Usuarios.add(Usuario);
+
+            }
+
+        } catch (Exception e) {
+            System.err.println(e.getLocalizedMessage());
+
+        }
 
         return Usuarios;
     }
@@ -278,6 +335,24 @@ public class UsuarioController {
         return campo.trim();
     }
 
+    @GetMapping("CargaMasivaProcesar")
+    public String procesarArchivo(HttpSession session, RedirectAttributes redirectAttributes) {
+        String archivoActual = (String) session.getAttribute("idArchivoActual");
+        String rutaReal = (String) session.getAttribute("ruta_" + archivoActual);
+
+        if (rutaReal == null) {
+            redirectAttributes.addFlashAttribute("Error", "No hay ningún archivo pendiente de procesar.");
+
+            session.removeAttribute("ruta_" + archivoActual);
+            return "redirect:/Usuario";
+        }
+
+        System.out.println("Procesando archivo desde sesión: " + rutaReal);
+
+        redirectAttributes.addFlashAttribute("Success", "Archivo Procesado correctamente");
+        return "redirect:/Usuario";
+    }
+
     @PostMapping("guardarImagen")
     public String guardarImagen(
             @RequestParam("idUsuario") int idUsuario,
@@ -295,6 +370,11 @@ public class UsuarioController {
                 System.out.println(usuario.getImagenFile());
                 System.out.println(usuario.getIdUsuario());
                 Result Result = usuarioDAOImplementation.UpdateImagen(usuario);
+                if (Result.Correct) {
+
+                } else {
+
+                }
             } catch (IOException e) {
                 e.printStackTrace();
 
