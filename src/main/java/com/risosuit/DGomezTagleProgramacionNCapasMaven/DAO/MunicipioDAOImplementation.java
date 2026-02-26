@@ -4,7 +4,6 @@
  */
 package com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO;
 
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Estado;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Municipio;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
 import java.sql.ResultSet;
@@ -42,6 +41,7 @@ public class MunicipioDAOImplementation implements IMunicipio {
 
                 }
                 result.Correct = true;
+                resultset.close();
 
                 return true;
             });

@@ -27,22 +27,23 @@ public class DireccionDAOImplementation implements IDireccion {
         Result Result = new Result();
         Result.Object = Direccion;
         try {
-            jdbcTemplate.execute("{CALL DireccionUpdateSP(?,?,?,?,?)}", (CallableStatementCallback<Boolean>) callablestatement -> {
-                callablestatement.setInt(1, Direccion.getIdDireccion());
-                callablestatement.setString(2, Direccion.getCalle());
-                callablestatement.setString(3, Direccion.getNumeroInterior());
-                callablestatement.setString(4, Direccion.getNumeroExterior());
-                callablestatement.setInt(5, Direccion.Colonia.getIdColonia());
+            jdbcTemplate.execute("{CALL DireccionUpdateSP(?,?,?,?,?)}",
+                    (CallableStatementCallback<Boolean>) callablestatement -> {
+                        callablestatement.setInt(1, Direccion.getIdDireccion());
+                        callablestatement.setString(2, Direccion.getCalle());
+                        callablestatement.setString(3, Direccion.getNumeroInterior());
+                        callablestatement.setString(4, Direccion.getNumeroExterior());
+                        callablestatement.setInt(5, Direccion.Colonia.getIdColonia());
 
-                if (callablestatement.executeUpdate() > 0) {
-                    Result.Correct = true;
-                } else {
-                    Result.Correct = false;
-                    Result.MessageException = "Algo Salió Mal";
-                }
+                        if (callablestatement.executeUpdate() > 0) {
+                            Result.Correct = true;
+                        } else {
+                            Result.Correct = false;
+                            Result.MessageException = "Algo Salió Mal";
+                        }
 
-                return true;
-            });
+                        return true;
+                    });
 
         } catch (Exception e) {
             Result.Correct = false;
@@ -55,14 +56,15 @@ public class DireccionDAOImplementation implements IDireccion {
     public Result Delete(int idDireccion) {
         Result Result = new Result();
         try {
-            jdbcTemplate.execute("{CALL DireccionDeleteSP(?)}", (CallableStatementCallback<Boolean>) callablestatement -> {
-                callablestatement.setInt(1, idDireccion);
-                if (callablestatement.executeUpdate() > 0) {
-                    Result.Correct = true;
-                }
+            jdbcTemplate.execute("{CALL DireccionDeleteSP(?)}",
+                    (CallableStatementCallback<Boolean>) callablestatement -> {
+                        callablestatement.setInt(1, idDireccion);
+                        if (callablestatement.executeUpdate() > 0) {
+                            Result.Correct = true;
+                        }
 
-                return true;
-            });
+                        return true;
+                    });
         } catch (Exception e) {
             Result.Correct = false;
             Result.MessageException = e.getLocalizedMessage();
@@ -75,33 +77,34 @@ public class DireccionDAOImplementation implements IDireccion {
     public Result GetByID(int idDireccion) {
         Result Result = new Result();
         try {
-            jdbcTemplate.execute("{CALL DireccionGetById(?,?)}", (CallableStatementCallback<Boolean>) callablestatement -> {
-                callablestatement.setInt(1, idDireccion);
-                callablestatement.registerOutParameter(2, java.sql.Types.REF_CURSOR);
-                callablestatement.execute();
-                ResultSet Resultset = (ResultSet) callablestatement.getObject(2);
-                if (Resultset.next()) {
-                    Direccion Direccion = new Direccion();
-                    Direccion.setCalle(Resultset.getString("CALLE"));
-                    Direccion.setNumeroExterior(Resultset.getString("NUMEROEXTERIOR"));
-                    Direccion.setNumeroInterior(Resultset.getString("NUMEROINTERIOR"));
-                    Direccion.Colonia.setIdColonia(Resultset.getInt("IDCOLONIA"));
-                    Direccion.Colonia.setCodigoPostal(Resultset.getString("CODIGOPOSTAL"));
-                    Direccion.Colonia.setNombre(Resultset.getString("NOMBRECOLONIA"));
-                    Direccion.Colonia.Municipio.setIdMunicipio(Resultset.getInt("IDMUNICIPIO"));
-                    Direccion.Colonia.Municipio.setNombre(Resultset.getString("NOMBREMUNICIPIO"));
-                    Direccion.Colonia.Municipio.Estado.setIdEstado(Resultset.getInt("IDESTADO"));
-                    Direccion.Colonia.Municipio.Estado.setNombre(Resultset.getString("NOMBREESTADO"));
-                    Direccion.Colonia.Municipio.Estado.Pais.setIdPais(Resultset.getInt("IDPAIS"));
-                    Direccion.Colonia.Municipio.Estado.Pais.setNombre(Resultset.getString("NOMBREPAIS"));
+            jdbcTemplate.execute("{CALL DireccionGetById(?,?)}",
+                    (CallableStatementCallback<Boolean>) callablestatement -> {
+                        callablestatement.setInt(1, idDireccion);
+                        callablestatement.registerOutParameter(2, java.sql.Types.REF_CURSOR);
+                        callablestatement.execute();
+                        ResultSet Resultset = (ResultSet) callablestatement.getObject(2);
+                        if (Resultset.next()) {
+                            Direccion Direccion = new Direccion();
+                            Direccion.setCalle(Resultset.getString("CALLE"));
+                            Direccion.setNumeroExterior(Resultset.getString("NUMEROEXTERIOR"));
+                            Direccion.setNumeroInterior(Resultset.getString("NUMEROINTERIOR"));
+                            Direccion.Colonia.setIdColonia(Resultset.getInt("IDCOLONIA"));
+                            Direccion.Colonia.setCodigoPostal(Resultset.getString("CODIGOPOSTAL"));
+                            Direccion.Colonia.setNombre(Resultset.getString("NOMBRECOLONIA"));
+                            Direccion.Colonia.Municipio.setIdMunicipio(Resultset.getInt("IDMUNICIPIO"));
+                            Direccion.Colonia.Municipio.setNombre(Resultset.getString("NOMBREMUNICIPIO"));
+                            Direccion.Colonia.Municipio.Estado.setIdEstado(Resultset.getInt("IDESTADO"));
+                            Direccion.Colonia.Municipio.Estado.setNombre(Resultset.getString("NOMBREESTADO"));
+                            Direccion.Colonia.Municipio.Estado.Pais.setIdPais(Resultset.getInt("IDPAIS"));
+                            Direccion.Colonia.Municipio.Estado.Pais.setNombre(Resultset.getString("NOMBREPAIS"));
 
-                    Result.Object = Direccion;
+                            Result.Object = Direccion;
 
-                }
-                Result.Correct = true;
-
-                return true;
-            });
+                        }
+                        Result.Correct = true;
+                        Resultset.close();
+                        return true;
+                    });
         } catch (Exception e) {
             Result.Correct = false;
             Result.MessageException = e.getLocalizedMessage();
@@ -114,50 +117,23 @@ public class DireccionDAOImplementation implements IDireccion {
     public Result Add(Direccion Direccion, int idUsuario) {
         Result Result = new Result();
         try {
-            jdbcTemplate.execute("{CALL DireccionAddSP(?,?,?,?,?)}", (CallableStatementCallback<Boolean>) callablestatement -> {
-                callablestatement.setString(1, Direccion.getCalle());
-                callablestatement.setString(2, Direccion.getNumeroInterior());
-                callablestatement.setString(3, Direccion.getNumeroExterior());
-                callablestatement.setInt(4, Direccion.Colonia.getIdColonia());
-                callablestatement.setInt(5, idUsuario);
-                if (callablestatement.executeUpdate() > 0) {
-                    Result.Correct = true;
-                }
+            jdbcTemplate.execute("{CALL DireccionAddSP(?,?,?,?,?)}",
+                    (CallableStatementCallback<Boolean>) callablestatement -> {
+                        callablestatement.setString(1, Direccion.getCalle());
+                        callablestatement.setString(2, Direccion.getNumeroInterior());
+                        callablestatement.setString(3, Direccion.getNumeroExterior());
+                        callablestatement.setInt(4, Direccion.Colonia.getIdColonia());
+                        callablestatement.setInt(5, idUsuario);
+                        if (callablestatement.executeUpdate() > 0) {
+                            Result.Correct = true;
+                        }
 
-                return true;
-            });
+                        return true;
+                    });
 
         } catch (Exception e) {
             Result.Correct = false;
             Result.MessageException = e.getLocalizedMessage();
-        }
-
-        return Result;
-
-    }
-
-    @Override
-    public Result getDirecionByCodigoPostal(String CodigoPostal) {
-        Result Result = new Result();
-        
-        try {
-            jdbcTemplate.execute("{CALL ColoniaByCodigoPostal(?,?)}", (CallableStatementCallback<Boolean>) (callablestatement) -> {
-                callablestatement.setString(1, CodigoPostal);
-                callablestatement.registerOutParameter(2, java.sql.Types.REF_CURSOR);
-                callablestatement.execute();
-                ResultSet Resultset= (ResultSet) callablestatement.getObject(2);
-                if (Resultset.next()) {
-//                    Direccion.Colonia.setIdColonia(Resultset.getInt("IDCOLONIA"));
-//                    Direccion.Colonia.set(Resultset.getInt("IDCOLONIA"));
-//                    Direccion.Colonia.Municipio.setIdMunicipio(Resultset.getInt("IDCOLONIA"));
-//                    Direccion.Colonia.setIdColonia(Resultset.getInt("IDCOLONIA"));
-//                    Direccion.Colonia.setIdColonia(Resultset.getInt("IDCOLONIA"));
-//                    Direccion.Colonia.setIdColonia(Resultset.getInt("IDCOLONIA"));
-                    
-                }
-                return true;
-            });
-        } catch (Exception e) {
         }
 
         return Result;

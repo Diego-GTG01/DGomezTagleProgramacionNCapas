@@ -2,7 +2,6 @@
 package com.risosuit.DGomezTagleProgramacionNCapasMaven.ML;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 
 
 public class Pais {

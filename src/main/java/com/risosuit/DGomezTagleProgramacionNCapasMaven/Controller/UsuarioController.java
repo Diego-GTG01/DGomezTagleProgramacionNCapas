@@ -21,16 +21,12 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.UUID;
-
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -121,14 +117,14 @@ public class UsuarioController {
 
     @GetMapping("cargamasiva")
     public String CargaMasiva() {
-        
+
         return "CargaMasiva";
     }
 
     @PostMapping("cargamasiva")
     public String CargaMasiva(@RequestParam("archivo") MultipartFile archivo,
             RedirectAttributes redirectAttributes, HttpSession session) {
-        
+
         try {
             if (archivo != null) {
                 String rutaBase = System.getProperty("user.dir");
@@ -339,6 +335,8 @@ public class UsuarioController {
     public String procesarArchivo(HttpSession session, RedirectAttributes redirectAttributes) {
         String archivoActual = (String) session.getAttribute("idArchivoActual");
         String rutaReal = (String) session.getAttribute("ruta_" + archivoActual);
+        session.removeAttribute("idArchivoActual");
+        session.removeAttribute("ruta_" + archivoActual);
 
         if (rutaReal == null) {
             redirectAttributes.addFlashAttribute("Error", "No hay ningún archivo pendiente de procesar.");
@@ -389,9 +387,9 @@ public class UsuarioController {
             RedirectAttributes redirectAttributes) {
         Result result = usuarioDAOImplementation.Delete(idUsuario);
         if (result.Correct) {
-            redirectAttributes.addFlashAttribute("SuccessDeleteUsuario", "El usuario fue eliminado correctamente");
+            redirectAttributes.addFlashAttribute("Success", "El usuario fue eliminado correctamente");
         } else {
-            redirectAttributes.addFlashAttribute("ErrorDeleteUsuario", "El usuario No fue eliminado correctamente");
+            redirectAttributes.addFlashAttribute("Error", "El usuario No fue eliminado correctamente");
         }
         return "redirect:/Usuario";
     }
@@ -457,7 +455,7 @@ public class UsuarioController {
             if (result.Correct) {
                 redirectAttributes.addFlashAttribute("Success", "Usuario No Fue Editado correctamente");
             } else {
-                redirectAttributes.addFlashAttribute("Failed", "Algo salió Mal :(");
+                redirectAttributes.addFlashAttribute("Error", "Algo salió Mal :(");
             }
             return "redirect:/Usuario";
         }
@@ -483,7 +481,13 @@ public class UsuarioController {
             return "redirect:/Usuario/" + idUsuario;
         } else {
             Result result = usuarioDAOImplementation.Update(usuario);
-            redirectAttributes.addFlashAttribute("SuccessEdicion", "Usuario Editado correctamente");
+            if (result.Correct) {
+                redirectAttributes.addFlashAttribute("SuccessEdicion", "Usuario Editado correctamente");
+
+            } else {
+                redirectAttributes.addFlashAttribute("FailedEdicion", "Algo Salió Mal");
+
+            }
             return "redirect:/Usuario/" + idUsuario;
         }
 
@@ -549,10 +553,6 @@ public class UsuarioController {
                     && direccion.getColonia().getMunicipio().getEstado() != null
                     && direccion.getColonia().getMunicipio().getEstado().getPais() != null) {
 
-                int paisId = direccion.getColonia().getMunicipio().getEstado().getPais().getIdPais();
-                int estadoId = direccion.getColonia().getMunicipio().getEstado().getIdEstado();
-                int municipioId = direccion.getColonia().getMunicipio().getIdMunicipio();
-
                 model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
                 redirectAttributes.addFlashAttribute("ErrorEdicionDireccion", "La dirección no pudo ser editada");
                 redirectAttributes.addFlashAttribute("IdDireccion", direccion.getIdDireccion());
@@ -562,7 +562,12 @@ public class UsuarioController {
 
         }
         Result result = direccionDAOImplementation.Update(direccion);
-        redirectAttributes.addFlashAttribute("SuccessEdicionDireccion", "Direccion Editado correctamente");
+        if (result.Correct) {
+            redirectAttributes.addFlashAttribute("SuccessEdicionDireccion", "Direccion Editado correctamente");
+
+        }else{
+            redirectAttributes.addFlashAttribute("ErrorEdicionDireccion", "Algo Salió Mal :(");
+        }
         return "redirect:/Usuario/" + idUsuario;
     }
 

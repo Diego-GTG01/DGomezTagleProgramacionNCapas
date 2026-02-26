@@ -5,7 +5,6 @@
 package com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO;
 
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
-import org.springframework.stereotype.Repository;
 public interface IPais {
     public Result GetAll();
 }

@@ -5,7 +5,6 @@
 package com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO;
 
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Estado;
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Pais;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
 import java.sql.ResultSet;
 import java.util.ArrayList;

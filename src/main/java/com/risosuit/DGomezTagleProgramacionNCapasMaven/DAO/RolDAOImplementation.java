@@ -39,6 +39,7 @@ public class RolDAOImplementation implements IRol {
                     
                     result.Objects.add(rol);
                 }
+                resultset.close();
                 result.Correct=true;
                 return true;
             });

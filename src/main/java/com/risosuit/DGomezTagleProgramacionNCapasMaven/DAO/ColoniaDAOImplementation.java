@@ -42,6 +42,7 @@ public class ColoniaDAOImplementation implements IColonia {
 
                 }
                 result.Correct = true;
+                resultset.close();
 
                 return true;
             });
@@ -78,6 +79,7 @@ public class ColoniaDAOImplementation implements IColonia {
                     Result.Objects.add(Colonia);
 
                 }
+                Resultset.close();
                 Result.Correct=true;
                 return true;
             });

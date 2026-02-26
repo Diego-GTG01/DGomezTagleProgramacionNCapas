@@ -2,8 +2,7 @@ package com.risosuit.DGomezTagleProgramacionNCapasMaven.ML;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+
 
 public class Colonia {
 
