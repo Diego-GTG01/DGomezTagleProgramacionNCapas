@@ -11,10 +11,13 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Direccion;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Pais;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -391,6 +394,41 @@ public class UsuarioDAOImplementation implements IUsuario {
                 });
         return result;
 
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Result AddAll(List<Usuario> Usuarios) {
+        Result Result = new Result();
+        try {
+            JdbcTemplate.batchUpdate("{CALL UsuarioDireccionAddSP(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", Usuarios, Usuarios.size(), (callableStatement, Usuario) -> {
+                callableStatement.setString(1, Usuario.getUserName());
+                callableStatement.setString(2, Usuario.getNombre());
+                callableStatement.setString(3, Usuario.getApellidoPaterno());
+                callableStatement.setString(4, Usuario.getApellidoMaterno());
+                callableStatement.setString(5, Usuario.getEmail());
+                callableStatement.setString(6, Usuario.getPassword());
+                callableStatement.setDate(7, java.sql.Date.valueOf(Usuario.getFechaNacimiento()));
+                callableStatement.setString(8, Usuario.getSexo());
+                callableStatement.setString(9, Usuario.getTelefono());
+                callableStatement.setString(10, Usuario.getCelular());
+                callableStatement.setString(11, Usuario.getCURP());
+                callableStatement.setInt(12, Usuario.Rol.getIdRol());
+                callableStatement.setString(13, Usuario.getImagenFile());
+                callableStatement.setString(14, Usuario.Direcciones.get(0).getCalle());
+                callableStatement.setString(15, Usuario.Direcciones.get(0).getNumeroInterior());
+                callableStatement.setString(16, Usuario.Direcciones.get(0).getNumeroExterior());
+                callableStatement.setInt(17, Usuario.Direcciones.get(0).Colonia.getIdColonia());
+
+            });
+            Result.Correct = true;
+        } catch (Exception e) {
+            Result.Correct = false;
+            Result.MessageException = e.getLocalizedMessage();
+            Result.ex = e;
+
+        }
+        return Result;
     }
 
 }

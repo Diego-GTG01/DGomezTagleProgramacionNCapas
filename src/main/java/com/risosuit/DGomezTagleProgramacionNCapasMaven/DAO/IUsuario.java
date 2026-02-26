@@ -4,6 +4,8 @@
  */
 package com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO;
 
+import java.util.List;
+
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario;
 
@@ -16,6 +18,7 @@ public interface IUsuario {
     public Result GetAll();
     public Result GetById(int IdUsuario);
     public Result Add(Usuario usuario);
+    public Result AddAll(List<Usuario> Usuarios);
     public Result Delete(int idUsuario);
     public Result UpdateImagen(Usuario usuario);
     public Result Update(Usuario usuario);

@@ -27,6 +27,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
+
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
@@ -123,7 +125,7 @@ public class UsuarioController {
 
     @PostMapping("cargamasiva")
     public String CargaMasiva(@RequestParam("archivo") MultipartFile archivo,
-            RedirectAttributes redirectAttributes, HttpSession session) {
+            RedirectAttributes redirectAttributes, HttpSession session, Model model) {
 
         try {
             if (archivo != null) {
@@ -151,8 +153,9 @@ public class UsuarioController {
                 if (errores.isEmpty()) {
                     System.out.println("Sin errores ");
                     redirectAttributes.addFlashAttribute("Success", "El archivo fue leido Correctamente");
-                    String idArchivo = fecha;
-                    session.setAttribute("idArchivoActual", idArchivo);
+
+                    String idArchivo = UUID.randomUUID().toString();
+                    redirectAttributes.addFlashAttribute("idArchivoActual", idArchivo);
                     session.setAttribute("ruta_" + idArchivo, rutaArchivo);
                     return "redirect:cargamasiva";
                 } else {
@@ -160,10 +163,6 @@ public class UsuarioController {
                     List<String> listaStrings = new ArrayList<>();
                     for (ErroresArchivo error : errores) {
                         listaStrings.add(error.toString());
-                    }
-                    for (Usuario usuario : Usuarios) {
-                        System.out.println(usuario.toString());
-
                     }
 
                     redirectAttributes.addFlashAttribute("errores", listaStrings);
@@ -273,15 +272,14 @@ public class UsuarioController {
 
                 Direccion direccion = new Direccion();
                 direccion.setCalle(limpiarCampo(row.getCell(12).toString()));
-
-                direccion.setNumeroInterior(fmt.formatCellValue(row.getCell(13)));
                 direccion.setNumeroExterior(fmt.formatCellValue(row.getCell(14)));
+                direccion.setNumeroInterior(fmt.formatCellValue(row.getCell(13)));
 
                 direccion.Colonia.setIdColonia((int) (row.getCell(15).getNumericCellValue()));
                 direccion.Colonia.Municipio.setIdMunicipio(1);
                 direccion.Colonia.Municipio.Estado.setIdEstado(1);
                 direccion.Colonia.Municipio.Estado.Pais.setIdPais(1);
-
+                Usuario.Direcciones.add(direccion);
                 Usuarios.add(Usuario);
 
             }
@@ -332,22 +330,46 @@ public class UsuarioController {
     }
 
     @GetMapping("CargaMasivaProcesar")
-    public String procesarArchivo(HttpSession session, RedirectAttributes redirectAttributes) {
-        String archivoActual = (String) session.getAttribute("idArchivoActual");
-        String rutaReal = (String) session.getAttribute("ruta_" + archivoActual);
-        session.removeAttribute("idArchivoActual");
-        session.removeAttribute("ruta_" + archivoActual);
+    public String procesarArchivo(@RequestParam("idRuta") String idRuta, HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
-        if (rutaReal == null) {
+        List<Usuario> Usuarios = null;
+        String rutaReal = null;
+        if (idRuta != null) {
+            rutaReal = (String) session.getAttribute("ruta_" + idRuta);
+            String extension = rutaReal.split("\\.")[1];
+
+            if (extension.contains("txt")) {
+                Usuarios = LecturaArchivoTxt(new File(rutaReal));
+
+            } else if (extension.contains("xlsx")) {
+                Usuarios = LecturaArchivoXLSX(new File(rutaReal));
+
+            } else {
+
+                System.out.println("Extensión Erronea");
+            }
+
+        }
+        session.removeAttribute("ruta_" + idRuta);
+
+        if (rutaReal == null || Usuarios == null) {
             redirectAttributes.addFlashAttribute("Error", "No hay ningún archivo pendiente de procesar.");
-
-            session.removeAttribute("ruta_" + archivoActual);
+            session.removeAttribute("ruta_" + idRuta);
             return "redirect:/Usuario";
         }
 
         System.out.println("Procesando archivo desde sesión: " + rutaReal);
+        Result Result = usuarioDAOImplementation.AddAll(Usuarios);
+        if (Result.Correct) {
+            redirectAttributes.addFlashAttribute("Success",
+                    "Archivo Procesado correctamente\n" + "Se agregaron: " + Usuarios.size() + " Nuevos registros!");
 
-        redirectAttributes.addFlashAttribute("Success", "Archivo Procesado correctamente");
+        } else {
+            redirectAttributes.addFlashAttribute("Error", "Algo Salió mal :( ");
+
+        }
+
         return "redirect:/Usuario";
     }
 
@@ -355,7 +377,7 @@ public class UsuarioController {
     public String guardarImagen(
             @RequestParam("idUsuario") int idUsuario,
             @RequestParam("imagenFile") MultipartFile imagenFile,
-            Model model) {
+            Model model, RedirectAttributes redirectAttributes) {
 
         Usuario usuario = new Usuario();
         usuario.setIdUsuario(idUsuario);
@@ -565,7 +587,7 @@ public class UsuarioController {
         if (result.Correct) {
             redirectAttributes.addFlashAttribute("SuccessEdicionDireccion", "Direccion Editado correctamente");
 
-        }else{
+        } else {
             redirectAttributes.addFlashAttribute("ErrorEdicionDireccion", "Algo Salió Mal :(");
         }
         return "redirect:/Usuario/" + idUsuario;
