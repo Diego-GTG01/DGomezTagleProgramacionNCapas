@@ -23,5 +23,6 @@ public interface IUsuario {
     public Result UpdateImagen(Usuario usuario);
     public Result Update(Usuario usuario);
     public Result Busqueda(Usuario usuario);
+    public Result UpdateActivo(int IdUsuario, int Activo);
     
 }

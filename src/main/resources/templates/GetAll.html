@@ -101,7 +101,7 @@
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <br>
-                                    
+
 
                                     <button class="btn btn-primary">
                                         <i class="bi bi-search me-2"></i>
@@ -142,6 +142,7 @@
                         <th><i class="bi bi-telephone"></i> Contacto</th>
                         <th><i class="bi bi-geo-alt"></i> Direcciones</th>
                         <th><i class="bi bi-shield-lock"></i> Rol</th>
+                        <th><i class="bi bi-check-circle"></i> Status</th>
                         <th><i class="bi bi-gear"></i> Acciones</th>
                     </tr>
                 </thead>
@@ -228,6 +229,24 @@
                             </div>
                         </td>
 
+                        <!-- Status -->
+                        <td class="text-center" style="max-width: 150px;">
+                            <div class="form-check form-switch d-flex justify-content-center align-items-center">
+                                <input class="form-check-input" type="checkbox" role="switch"
+                                    th:id="${usuario.IdUsuario}" th:checked="${usuario.activo == 1}"
+                                    th:data-usuario="${usuario.IdUsuario}" onchange="UpdateStatus(this)">
+                                <label class="form-check-label ms-2 small fw-bold"
+                                    th:for="'estado-' + ${usuario.IdUsuario}"
+                                    th:text="${usuario.activo == 1} ? 'Activo' : 'Inactivo'"
+                                    th:classappend="${usuario.activo == 1} ? 'text-success' : 'text-danger'">
+                                </label>
+                                <small class="d-block text-muted mt-1"
+                                    th:text="${usuario.activo == 1} ? 'Usuario activo' : 'Usuario inactivo'">
+                                </small>
+                                
+                            </div>
+                        </td>
+
                         <!-- Acciones -->
                         <td class="text-center" style="max-width: 150px;">
                             <div class="btn-group btn-group-sm">
@@ -306,19 +325,47 @@
     }
 </script>
 <script th:inline="javascript">
+    function UpdateStatus(input) {
+        console.log(input.id);
+        console.log(input.checked);
+        var status = 0;
+        if (input.checked) {
+            status = 1;
+        }
+        const isChecked = input.checked;
+        const usuarioId = input.id;
 
-    var miAtributo = [[${
-        Success
-    }
-    ]];
-    if (miAtributo != null) {
-        Swal.fire({
-            title: "Exito!",
-            text: miAtributo,
-            icon: "success",
-            draggable: true
+        const label = document.querySelector(`label[for='estado-${usuarioId}']`);
+
+
+
+        $.ajax({
+            url: "Usuario/UpdateActivo/" + input.id + "/" + status,
+            type: "POST",
+            dataType: "json",
+            success: function (data) {
+                if (data.Correct) {
+                    if (isChecked) {
+                        label.textContent = 'Activo';
+                        label.classList.replace('text-danger', 'text-success');
+                    } else {
+                        label.textContent = 'Inactivo';
+                        label.classList.replace('text-success', 'text-danger');
+                    }
+
+                    console.log("Estatus cambiado");
+                } else {
+                    console.log("Algo salió mal");
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error("Error al cambiar status:", textStatus, errorThrown);
+            }
         });
+
+
     }
+
 
 </script>
 

@@ -51,16 +51,25 @@ public class Usuario {
     @Size(max = 18, message = "Debe tener más de 3 caracteres")
     @Pattern(regexp = "^[a-zA-Z0-9\\s]+$", message = "Ingrese una CURP valida")
     private String CURP;
+    private int Activo = 0;
+
     private LocalDateTime UltimoAcceso;
     @Valid
     public Rol Rol;
     @Valid
     public List<Direccion> Direcciones;
-    
 
     public Usuario() {
         this.Rol = new Rol();
         this.Direcciones = new ArrayList<>();
+    }
+
+    public int getActivo() {
+        return Activo;
+    }
+
+    public void setActivo(int activo) {
+        Activo = activo;
     }
 
     public String getImagenFile() {

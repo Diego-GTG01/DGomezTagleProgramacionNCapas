@@ -15,6 +15,8 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.Service.ValidationService
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import oracle.jdbc.proxy.annotation.Post;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -625,6 +627,14 @@ public class UsuarioController {
     @ResponseBody
     public Result getDirecionByCodigoPostal(@PathVariable("IdDireccion") String IdDireccion) {
         Result result = coloniaDAOImplementation.getColoniaByCodigoPostal(IdDireccion);
+        return result;
+    }
+
+    @PostMapping("UpdateActivo/{IdUsuario}/{Activo}")
+    @ResponseBody
+    public Result UpdateActivo(@PathVariable("IdUsuario") int IdUsuario,
+     @PathVariable("Activo") int Activo) {
+        Result result = usuarioDAOImplementation.UpdateActivo(IdUsuario, Activo);
         return result;
     }
 
