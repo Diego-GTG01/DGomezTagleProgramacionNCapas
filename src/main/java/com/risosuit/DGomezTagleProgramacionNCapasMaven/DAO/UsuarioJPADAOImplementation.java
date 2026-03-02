@@ -1,0 +1,69 @@
+package com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Usuario;
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+
+@Repository
+public class UsuarioJPADAOImplementation implements IUsuarioJPA {
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Override
+    public Result GetAll() {
+        Result result = new Result();
+        try {
+            TypedQuery<Usuario> query = entityManager.createQuery("FROM Usuario u ORDER BY u.IdUsuario ASC",
+                    Usuario.class);
+            List<Usuario> usuariosJPA = query.getResultList();
+            ArrayList<com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario> usuariosML = new ArrayList<>();
+
+            for (Usuario usuario : usuariosJPA) {
+                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = modelMapper.map(usuario,
+                        com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario.class);
+                usuariosML.add(usuarioML);
+            }
+            result.Objects = new ArrayList<>(usuariosML);
+            result.Correct = true;
+        } catch (Exception ex) {
+            result.Correct = false;
+            result.MessageException = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+        return result;
+    }
+
+    @Override
+    public Result GetByID(int IdUsuario) {
+        Result Result = new Result();
+        try {
+
+            Usuario Usuario = entityManager.find(Usuario.class, IdUsuario);
+            com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = modelMapper.map(Usuario,
+                    com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario.class);
+                    Result.Object = usuarioML;
+                    Result.Correct=true;
+        } catch (Exception ex) {
+            Result.Correct=false;
+            Result.MessageException=ex.getLocalizedMessage();
+            Result.ex=ex;
+
+        }
+
+        return Result;
+    }
+
+}

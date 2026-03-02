@@ -7,6 +7,7 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.MunicipioDAOImplement
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.PaisDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.RolDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.UsuarioDAOImplementation;
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.UsuarioJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Direccion;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.ErroresArchivo;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
@@ -15,7 +16,6 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.Service.ValidationService
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import oracle.jdbc.proxy.annotation.Post;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -56,11 +56,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("Usuario")
 public class UsuarioController {
 
+
     @Autowired
     private ValidationService validationservice;
 
     @Autowired
     private UsuarioDAOImplementation usuarioDAOImplementation;
+
+    @Autowired
+    private UsuarioJPADAOImplementation usuarioJPADAOImplementation;
 
     @Autowired
     private PaisDAOImplementation paisDAOImplementation;
@@ -80,7 +84,9 @@ public class UsuarioController {
 
     @GetMapping("")
     public String GetAll(Model model) {
-        Result result = usuarioDAOImplementation.GetAll();
+        
+        //Result result = usuarioDAOImplementation.GetAll();
+        Result result = usuarioJPADAOImplementation.GetAll();
         model.addAttribute("usuarios", result.Objects);
         model.addAttribute("Usuario", new Usuario());
         model.addAttribute("Roles", rolDAOImplementation.GetAll().Objects);
@@ -98,7 +104,8 @@ public class UsuarioController {
     // }
     @GetMapping("{idUsuario}")
     public String GetByIdDetalle(@PathVariable("idUsuario") int idUsuario, Model model) {
-        Result result = usuarioDAOImplementation.GetById(idUsuario);
+        //Result result = usuarioDAOImplementation.GetById(idUsuario);
+        Result result = usuarioJPADAOImplementation.GetByID(idUsuario);
         model.addAttribute("usuario", result.Object);
         model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
         model.addAttribute("Roles", rolDAOImplementation.GetAll().Objects);
