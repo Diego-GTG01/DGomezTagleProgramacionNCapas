@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -69,7 +70,7 @@ public class Usuario {
     @JoinColumn(name = "idrol")
     public Rol Rol;
     
-    @OneToMany(mappedBy = "Usuario")
+    @OneToMany(mappedBy = "Usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Direccion> Direcciones;
 
     public Usuario() {

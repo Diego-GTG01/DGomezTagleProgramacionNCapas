@@ -48,7 +48,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
     }
 
     @Override
-    public Result GetByID(int IdUsuario) {
+    public Result GetById(int IdUsuario) {
         Result Result = new Result();
         try {
 
@@ -101,18 +101,42 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
         return Result;
     }
 
+    @Transactional
+    @Override
+    public Result Update(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuario) {
+        Result Result = new Result();
+        try {
+            Usuario Usuario = entityManager.find(Usuario.class, usuario.getIdUsuario());
+
+            Usuario usuarioJPA = modelMapper.map(usuario,
+                    com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Usuario.class);
+            Usuario.Direcciones = usuarioJPA.Direcciones;
+            usuarioJPA.setActivo(Usuario.getActivo());
+            entityManager.merge(usuarioJPA);
+            Result.Correct = true;
+
+        } catch (Exception ex) {
+            Result.Correct = false;
+            Result.MessageException = ex.getLocalizedMessage();
+            Result.ex = ex;
+        }
+
+        return Result;
+    }
 
     @Transactional
     @Override
-    public Result Update (com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuario) {
+    public Result Delete(int IdUsuario) {
         Result Result = new Result();
         try {
-            Usuario usuarioJPA = modelMapper.map(usuario,
-                    com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Usuario.class);
-
-            entityManager.persist(usuarioJPA);
-            Result.Correct = true;
-
+            Usuario usuario = entityManager.find(Usuario.class, IdUsuario);
+            if (usuario != null) {
+                entityManager.remove(usuario);
+                entityManager.flush();
+                Result.Correct = true;
+            } else {
+                Result.Correct = false;
+            }
         } catch (Exception ex) {
             Result.Correct = false;
             Result.MessageException = ex.getLocalizedMessage();

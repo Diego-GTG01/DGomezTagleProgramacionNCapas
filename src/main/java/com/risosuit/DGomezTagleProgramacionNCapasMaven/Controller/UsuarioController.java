@@ -2,10 +2,12 @@ package com.risosuit.DGomezTagleProgramacionNCapasMaven.Controller;
 
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.ColoniaDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.DireccionDAOImplementation;
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.DireccionJPAImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.EstadoDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.MunicipioDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.PaisDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.RolDAOImplementation;
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.RolJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.UsuarioDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.UsuarioJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Direccion;
@@ -56,14 +58,23 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("Usuario")
 public class UsuarioController {
 
+    // JPA
+    @Autowired
+    private UsuarioJPADAOImplementation usuarioJPADAOImplementation;
+
+    @Autowired
+    private RolJPADAOImplementation rolJPADAOImplementation;
+
+    @Autowired
+    private DireccionJPAImplementation direccionJPAImplementation;
+
+    // JDB
+
     @Autowired
     private ValidationService validationservice;
 
     @Autowired
     private UsuarioDAOImplementation usuarioDAOImplementation;
-
-    @Autowired
-    private UsuarioJPADAOImplementation usuarioJPADAOImplementation;
 
     @Autowired
     private PaisDAOImplementation paisDAOImplementation;
@@ -88,7 +99,7 @@ public class UsuarioController {
         Result result = usuarioJPADAOImplementation.GetAll();
         model.addAttribute("usuarios", result.Objects);
         model.addAttribute("Usuario", new Usuario());
-        model.addAttribute("Roles", rolDAOImplementation.GetAll().Objects);
+        model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
         return "GetAll";
 
     }
@@ -103,11 +114,11 @@ public class UsuarioController {
     // }
     @GetMapping("{idUsuario}")
     public String GetByIdDetalle(@PathVariable("idUsuario") int idUsuario, Model model) {
-        Result result = usuarioDAOImplementation.GetById(idUsuario);
-        // Result result = usuarioJPADAOImplementation.GetByID(idUsuario);
+        // Result result = usuarioDAOImplementation.GetById(idUsuario);
+        Result result = usuarioJPADAOImplementation.GetById(idUsuario);
         model.addAttribute("usuario", result.Object);
         model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
-        model.addAttribute("Roles", rolDAOImplementation.GetAll().Objects);
+        model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
         model.addAttribute("Direccion", new Direccion());
         return "DetalleUsuario";
 
@@ -120,7 +131,7 @@ public class UsuarioController {
         // Result result = usuarioJPADAOImplementation.Busqueda(usuario);
         model.addAttribute("usuarios", result.Objects);
         model.addAttribute("Usuario", usuario);
-        model.addAttribute("Roles", rolDAOImplementation.GetAll().Objects);
+        model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
 
         return "GetAll";
 
@@ -416,7 +427,8 @@ public class UsuarioController {
     @GetMapping("Delete/{idUsuario}")
     public String DeleteUsuario(@PathVariable("idUsuario") int idUsuario, Model model,
             RedirectAttributes redirectAttributes) {
-        Result result = usuarioDAOImplementation.Delete(idUsuario);
+        // Result result = usuarioDAOImplementation.Delete(idUsuario);
+        Result result = usuarioJPADAOImplementation.Delete(idUsuario);
         if (result.Correct) {
             redirectAttributes.addFlashAttribute("Success", "El usuario fue eliminado correctamente");
         } else {
@@ -429,7 +441,7 @@ public class UsuarioController {
     public String Formulario(Model model) {
         model.addAttribute("Usuario", new Usuario());
         model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
-        model.addAttribute("Roles", rolDAOImplementation.GetAll().Objects);
+        model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
 
         return "Formulario";
     }
@@ -478,7 +490,7 @@ public class UsuarioController {
             }
             model.addAttribute("Usuario", usuario);
             model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
-            model.addAttribute("Roles", rolDAOImplementation.GetAll().Objects);
+            model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
             model.addAttribute("Failed", "Usuario No Fue Agregado correctamente, Verifique los datos");
             return "Formulario";
         } else {
@@ -507,12 +519,13 @@ public class UsuarioController {
             }
             model.addAttribute("Usuario", usuario);
             model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
-            model.addAttribute("Roles", rolDAOImplementation.GetAll().Objects);
+            model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
             redirectAttributes.addFlashAttribute("FailedEdicion", "Usuario No Fue Editado correctamente");
 
             return "redirect:/Usuario/" + idUsuario;
         } else {
-            Result result = usuarioDAOImplementation.Update(usuario);
+            // Result result = usuarioDAOImplementation.Update(usuario);
+            Result result = usuarioJPADAOImplementation.Update(usuario);
             if (result.Correct) {
                 redirectAttributes.addFlashAttribute("SuccessEdicion", "Usuario Editado correctamente");
 
@@ -529,7 +542,8 @@ public class UsuarioController {
 
     public String DeleteDireccion(@PathVariable("idDireccion") int idDireccion,
             @PathVariable("idUsuario") int idUsuario, RedirectAttributes redirectAttributes) {
-        Result Result = direccionDAOImplementation.Delete(idDireccion);
+        // Result Result = direccionDAOImplementation.Delete(idDireccion);
+        Result Result = direccionJPAImplementation.Delete(idDireccion);
         if (Result.Correct) {
             redirectAttributes.addFlashAttribute("SuccessDeleteDireccion", "La Direccion fue eliminada correctamente");
         } else {
@@ -544,7 +558,7 @@ public class UsuarioController {
             BindingResult bindingResult,
             Model model, RedirectAttributes redirectAttributes) {
 
-        Result Result = usuarioDAOImplementation.GetById(idUsuario);
+        Result Result = usuarioJPADAOImplementation.GetById(idUsuario);
         model.addAttribute("usuario", Result.Object);
 
         if (bindingResult.hasErrors()) {
@@ -557,7 +571,7 @@ public class UsuarioController {
 
         }
 
-        Result result = direccionDAOImplementation.Add(direccion, idUsuario);
+        Result result = direccionJPAImplementation.Add(direccion, idUsuario);
         if (result.Correct) {
             redirectAttributes.addFlashAttribute("SuccessAddDireccion", "Direccion Agregada correctamente");
         } else {
@@ -572,7 +586,7 @@ public class UsuarioController {
             BindingResult bindingResult,
             Model model, RedirectAttributes redirectAttributes) {
 
-        Result Result = usuarioDAOImplementation.GetById(idUsuario);
+        Result Result = usuarioJPADAOImplementation.GetById(idUsuario);
         model.addAttribute("usuario", Result.Object);
 
         if (bindingResult.hasErrors()) {
@@ -593,7 +607,9 @@ public class UsuarioController {
             }
 
         }
-        Result result = direccionDAOImplementation.Update(direccion);
+       // Result result = direccionDAOImplementation.Update(direccion);
+        
+        Result result = direccionJPAImplementation.Update(direccion, idUsuario);
         if (result.Correct) {
             redirectAttributes.addFlashAttribute("SuccessEdicionDireccion", "Direccion Editado correctamente");
 
@@ -627,7 +643,8 @@ public class UsuarioController {
     @GetMapping("getDireccionById/{IdDireccion}")
     @ResponseBody
     public Result getDireccionById(@PathVariable("IdDireccion") int IdDireccion) {
-        Result result = direccionDAOImplementation.GetByID(IdDireccion);
+        Result result = direccionJPAImplementation.GetById(IdDireccion);
+        //Result result = direccionDAOImplementation.GetByID(IdDireccion);
         return result;
     }
 

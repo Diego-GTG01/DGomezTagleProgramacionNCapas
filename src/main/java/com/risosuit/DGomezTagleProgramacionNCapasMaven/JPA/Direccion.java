@@ -3,6 +3,7 @@ package com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,7 +31,7 @@ public class Direccion {
     @JoinColumn(name = "idcolonia")
     public Colonia Colonia;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)// carga Perezosa
     @JoinColumn(name = "idusuario")
     public Usuario Usuario;
 
