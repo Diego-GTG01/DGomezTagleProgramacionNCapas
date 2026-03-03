@@ -16,15 +16,20 @@ public class Direccion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "iddireccion")
     private int IdDireccion;
+    
     @Column(name = "calle")
     private String Calle;
+
     @Column(name = "numeroexterior")
     private String NumeroExterior;
+
     @Column(name = "numerointerior")
     private String NumeroInterior;
+
     @ManyToOne
     @JoinColumn(name = "idcolonia")
     public Colonia Colonia;
+
     @ManyToOne
     @JoinColumn(name = "idusuario")
     public Usuario Usuario;

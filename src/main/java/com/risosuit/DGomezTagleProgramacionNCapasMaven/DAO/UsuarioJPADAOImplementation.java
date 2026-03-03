@@ -12,6 +12,7 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 
 @Repository
 public class UsuarioJPADAOImplementation implements IUsuarioJPA {
@@ -26,7 +27,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
     public Result GetAll() {
         Result result = new Result();
         try {
-            TypedQuery<Usuario> query = entityManager.createQuery("FROM Usuario u ORDER BY u.IdUsuario ASC",
+            TypedQuery<Usuario> query = entityManager.createQuery("FROM Usuario u ORDER BY u.ApellidoPaterno ASC",
                     Usuario.class);
             List<Usuario> usuariosJPA = query.getResultList();
             ArrayList<com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario> usuariosML = new ArrayList<>();
@@ -54,13 +55,68 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             Usuario Usuario = entityManager.find(Usuario.class, IdUsuario);
             com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = modelMapper.map(Usuario,
                     com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario.class);
-                    Result.Object = usuarioML;
-                    Result.Correct=true;
+            Result.Object = usuarioML;
+            Result.Correct = true;
         } catch (Exception ex) {
-            Result.Correct=false;
-            Result.MessageException=ex.getLocalizedMessage();
-            Result.ex=ex;
+            Result.Correct = false;
+            Result.MessageException = ex.getLocalizedMessage();
+            Result.ex = ex;
 
+        }
+
+        return Result;
+    }
+
+    @Override
+    public Result Busqueda(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuario) {
+        Result Result = new Result();
+        try {
+
+        } catch (Exception ex) {
+            Result.Correct = false;
+            Result.MessageException = ex.getLocalizedMessage();
+            Result.ex = ex;
+        }
+
+        return Result;
+    }
+
+    @Transactional
+    @Override
+    public Result Add(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuario) {
+        Result Result = new Result();
+        try {
+            Usuario usuarioJPA = modelMapper.map(usuario,
+                    com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Usuario.class);
+
+            entityManager.persist(usuarioJPA);
+            Result.Correct = true;
+
+        } catch (Exception ex) {
+            Result.Correct = false;
+            Result.MessageException = ex.getLocalizedMessage();
+            Result.ex = ex;
+        }
+
+        return Result;
+    }
+
+
+    @Transactional
+    @Override
+    public Result Update (com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuario) {
+        Result Result = new Result();
+        try {
+            Usuario usuarioJPA = modelMapper.map(usuario,
+                    com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Usuario.class);
+
+            entityManager.persist(usuarioJPA);
+            Result.Correct = true;
+
+        } catch (Exception ex) {
+            Result.Correct = false;
+            Result.MessageException = ex.getLocalizedMessage();
+            Result.ex = ex;
         }
 
         return Result;

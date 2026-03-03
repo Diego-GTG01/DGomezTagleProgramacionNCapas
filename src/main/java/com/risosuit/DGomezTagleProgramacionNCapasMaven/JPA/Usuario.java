@@ -68,6 +68,7 @@ public class Usuario {
     @ManyToOne
     @JoinColumn(name = "idrol")
     public Rol Rol;
+    
     @OneToMany(mappedBy = "Usuario")
     public List<Direccion> Direcciones;
 

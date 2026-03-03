@@ -56,7 +56,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("Usuario")
 public class UsuarioController {
 
-
     @Autowired
     private ValidationService validationservice;
 
@@ -84,8 +83,8 @@ public class UsuarioController {
 
     @GetMapping("")
     public String GetAll(Model model) {
-        
-        //Result result = usuarioDAOImplementation.GetAll();
+
+        // Result result = usuarioDAOImplementation.GetAll();
         Result result = usuarioJPADAOImplementation.GetAll();
         model.addAttribute("usuarios", result.Objects);
         model.addAttribute("Usuario", new Usuario());
@@ -104,8 +103,8 @@ public class UsuarioController {
     // }
     @GetMapping("{idUsuario}")
     public String GetByIdDetalle(@PathVariable("idUsuario") int idUsuario, Model model) {
-        //Result result = usuarioDAOImplementation.GetById(idUsuario);
-        Result result = usuarioJPADAOImplementation.GetByID(idUsuario);
+        Result result = usuarioDAOImplementation.GetById(idUsuario);
+        // Result result = usuarioJPADAOImplementation.GetByID(idUsuario);
         model.addAttribute("usuario", result.Object);
         model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
         model.addAttribute("Roles", rolDAOImplementation.GetAll().Objects);
@@ -118,6 +117,7 @@ public class UsuarioController {
     public String Busqueda(@ModelAttribute("Usuario") Usuario usuario, Model model) {
 
         Result result = usuarioDAOImplementation.Busqueda(usuario);
+        // Result result = usuarioJPADAOImplementation.Busqueda(usuario);
         model.addAttribute("usuarios", result.Objects);
         model.addAttribute("Usuario", usuario);
         model.addAttribute("Roles", rolDAOImplementation.GetAll().Objects);
@@ -482,7 +482,8 @@ public class UsuarioController {
             model.addAttribute("Failed", "Usuario No Fue Agregado correctamente, Verifique los datos");
             return "Formulario";
         } else {
-            Result result = usuarioDAOImplementation.Add(usuario);
+            // Result result = usuarioDAOImplementation.Add(usuario);
+            Result result = usuarioJPADAOImplementation.Add(usuario);
             if (result.Correct) {
                 redirectAttributes.addFlashAttribute("Success", "Usuario No Fue Editado correctamente");
             } else {
@@ -640,7 +641,7 @@ public class UsuarioController {
     @PostMapping("UpdateActivo/{IdUsuario}/{Activo}")
     @ResponseBody
     public Result UpdateActivo(@PathVariable("IdUsuario") int IdUsuario,
-     @PathVariable("Activo") int Activo) {
+            @PathVariable("Activo") int Activo) {
         Result result = usuarioDAOImplementation.UpdateActivo(IdUsuario, Activo);
         return result;
     }
