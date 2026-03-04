@@ -1,11 +1,15 @@
 package com.risosuit.DGomezTagleProgramacionNCapasMaven.Controller;
 
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.ColoniaDAOImplementation;
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.ColoniaJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.DireccionDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.DireccionJPAImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.EstadoDAOImplementation;
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.EstadoJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.MunicipioDAOImplementation;
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.MunicipioJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.PaisDAOImplementation;
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.PaisJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.RolDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.RolJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.UsuarioDAOImplementation;
@@ -38,6 +42,7 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.hibernate.persister.entity.mutation.MutationCoordinator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -67,6 +72,18 @@ public class UsuarioController {
 
     @Autowired
     private DireccionJPAImplementation direccionJPAImplementation;
+
+    @Autowired
+    private PaisJPADAOImplementation paisJPADAOImplementation;
+
+    @Autowired
+    private EstadoJPADAOImplementation estadoJPADAOImplementation;
+
+    @Autowired
+    private MunicipioJPADAOImplementation municipioJPADAOImplementation;
+
+    @Autowired
+    private ColoniaJPADAOImplementation coloniaJPADAOImplementation;
 
     // JDB
 
@@ -117,7 +134,8 @@ public class UsuarioController {
         // Result result = usuarioDAOImplementation.GetById(idUsuario);
         Result result = usuarioJPADAOImplementation.GetById(idUsuario);
         model.addAttribute("usuario", result.Object);
-        model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
+        // model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
+        model.addAttribute("Paises", paisJPADAOImplementation.GetAll().Objects);
         model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
         model.addAttribute("Direccion", new Direccion());
         return "DetalleUsuario";
@@ -440,7 +458,8 @@ public class UsuarioController {
     @GetMapping("Form")
     public String Formulario(Model model) {
         model.addAttribute("Usuario", new Usuario());
-        model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
+        // model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
+        model.addAttribute("Paises", paisJPADAOImplementation.GetAll().Objects);
         model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
 
         return "Formulario";
@@ -489,7 +508,8 @@ public class UsuarioController {
 
             }
             model.addAttribute("Usuario", usuario);
-            model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
+            // model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
+            model.addAttribute("Paises", paisJPADAOImplementation.GetAll().Objects);
             model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
             model.addAttribute("Failed", "Usuario No Fue Agregado correctamente, Verifique los datos");
             return "Formulario";
@@ -518,7 +538,8 @@ public class UsuarioController {
                 System.out.println("Valor rechazado: " + error.getRejectedValue());
             }
             model.addAttribute("Usuario", usuario);
-            model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
+            // model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
+            model.addAttribute("Paises", paisJPADAOImplementation.GetAll().Objects);
             model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
             redirectAttributes.addFlashAttribute("FailedEdicion", "Usuario No Fue Editado correctamente");
 
@@ -563,7 +584,8 @@ public class UsuarioController {
 
         if (bindingResult.hasErrors()) {
 
-            model.addAttribute("paises", paisDAOImplementation.GetAll().Objects);
+            // model.addAttribute("paises", paisDAOImplementation.GetAll().Objects);
+            model.addAttribute("paises", paisJPADAOImplementation.GetAll().Objects);
             redirectAttributes.addFlashAttribute("direccion", direccion);
             redirectAttributes.addFlashAttribute("ErrorAddDireccion",
                     "Direccion No Fue Agregado correctamente, Verifique los datos");
@@ -592,14 +614,16 @@ public class UsuarioController {
         if (bindingResult.hasErrors()) {
 
             model.addAttribute("direccion", direccion);
-            model.addAttribute("paises", paisDAOImplementation.GetAll().Objects);
+            // model.addAttribute("paises", paisDAOImplementation.GetAll().Objects);
+            model.addAttribute("paises", paisJPADAOImplementation.GetAll().Objects);
 
             if (direccion.getColonia() != null
                     && direccion.getColonia().getMunicipio() != null
                     && direccion.getColonia().getMunicipio().getEstado() != null
                     && direccion.getColonia().getMunicipio().getEstado().getPais() != null) {
 
-                model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
+                // model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
+                model.addAttribute("Paises", paisJPADAOImplementation.GetAll().Objects);
                 redirectAttributes.addFlashAttribute("ErrorEdicionDireccion", "La dirección no pudo ser editada");
                 redirectAttributes.addFlashAttribute("IdDireccion", direccion.getIdDireccion());
 
@@ -607,8 +631,8 @@ public class UsuarioController {
             }
 
         }
-       // Result result = direccionDAOImplementation.Update(direccion);
-        
+        // Result result = direccionDAOImplementation.Update(direccion);
+
         Result result = direccionJPAImplementation.Update(direccion, idUsuario);
         if (result.Correct) {
             redirectAttributes.addFlashAttribute("SuccessEdicionDireccion", "Direccion Editado correctamente");
@@ -622,21 +646,25 @@ public class UsuarioController {
     @GetMapping("getEstadosByPais/{IdPais}")
     @ResponseBody
     public Result getEstadoByPais(@PathVariable("IdPais") int IdPais) {
-        Result result = estadoDAOImplementation.getEstadoByPais(IdPais);
+        // Result result = estadoDAOImplementation.getEstadoByPais(IdPais);
+        Result result = estadoJPADAOImplementation.GetgetEstadoByPais(IdPais);
         return result;
     }
 
     @GetMapping("getMunicipiosByEstado/{IdEstado}")
     @ResponseBody
     public Result getMunicipioByEstado(@PathVariable("IdEstado") int IdEstado) {
-        Result result = municipioDAOImplementation.getMunicipioByEstado(IdEstado);
+        // Result result = municipioDAOImplementation.getMunicipioByEstado(IdEstado);
+        Result result = municipioJPADAOImplementation.getMunicipioByEstado(IdEstado);
+
         return result;
     }
 
     @GetMapping("getColoniasByMunicipio/{IdMunicipio}")
     @ResponseBody
     public Result getColoniaByMunicipio(@PathVariable("IdMunicipio") int IdMunicipio) {
-        Result result = coloniaDAOImplementation.getColoniaByMunicipio(IdMunicipio);
+        //Result result = coloniaDAOImplementation.getColoniaByMunicipio(IdMunicipio);
+        Result result = coloniaJPADAOImplementation.getColoniaByMunicipio(IdMunicipio);
         return result;
     }
 
@@ -644,16 +672,11 @@ public class UsuarioController {
     @ResponseBody
     public Result getDireccionById(@PathVariable("IdDireccion") int IdDireccion) {
         Result result = direccionJPAImplementation.GetById(IdDireccion);
-        //Result result = direccionDAOImplementation.GetByID(IdDireccion);
+        // Result result = direccionDAOImplementation.GetByID(IdDireccion);
         return result;
     }
 
-    @GetMapping("getColoniaByCodigoPostal/{IdDireccion}")
-    @ResponseBody
-    public Result getDirecionByCodigoPostal(@PathVariable("IdDireccion") String IdDireccion) {
-        Result result = coloniaDAOImplementation.getColoniaByCodigoPostal(IdDireccion);
-        return result;
-    }
+
 
     @PostMapping("UpdateActivo/{IdUsuario}/{Activo}")
     @ResponseBody
