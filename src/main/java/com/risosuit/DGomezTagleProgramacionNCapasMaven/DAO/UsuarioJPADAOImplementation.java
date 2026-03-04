@@ -15,14 +15,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 
+
 @Repository
 public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
     @Autowired
     private EntityManager entityManager;
-
-    @Autowired
-    private ModelMapper modelMapper;
 
     @Override
     public Result GetAll() {
@@ -34,8 +32,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             ArrayList<com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario> usuariosML = new ArrayList<>();
 
             for (Usuario usuario : usuariosJPA) {
-                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = modelMapper.map(usuario,
-                        com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario.class);
+                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = mapUsuarioJPAtoML(usuario);
                 usuariosML.add(usuarioML);
             }
             result.Objects = new ArrayList<>(usuariosML);
@@ -52,16 +49,15 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
     public Result GetById(int IdUsuario) {
         Result Result = new Result();
         try {
-
             Usuario Usuario = entityManager.find(Usuario.class, IdUsuario);
             if (Usuario != null) {
-                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = modelMapper.map(Usuario,
-                        com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario.class);
+
+                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = mapUsuarioJPAtoML(Usuario);
+
                 Result.Object = usuarioML;
                 Result.Correct = true;
-
             } else {
-                Result.Correct = true;
+                Result.Correct = false;
                 Result.MessageException = "Recurso no encontrado";
             }
 
@@ -69,9 +65,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             Result.Correct = false;
             Result.MessageException = ex.getLocalizedMessage();
             Result.ex = ex;
-
         }
-
         return Result;
     }
 
@@ -80,8 +74,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
     public Result Add(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuario) {
         Result Result = new Result();
         try {
-            Usuario usuarioJPA = modelMapper.map(usuario,
-                    com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Usuario.class);
+            Usuario usuarioJPA = mapUsuarioMLtoJPA(usuario);
 
             entityManager.persist(usuarioJPA);
             Result.Correct = true;
@@ -102,12 +95,10 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
         try {
             Usuario Usuario = entityManager.find(Usuario.class, usuario.getIdUsuario());
             if (Usuario != null) {
-                Usuario usuarioJPA = modelMapper.map(usuario,
-                        com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Usuario.class);
+                Usuario usuarioJPA = mapUsuarioMLtoJPA(usuario);
 
                 usuarioJPA.setActivo(Usuario.getActivo());
                 usuarioJPA.setImagenFile(Usuario.getImagenFile());
-
                 usuarioJPA.getDirecciones().clear();
 
                 for (Direccion dir : Usuario.Direcciones) {
@@ -118,7 +109,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
                 Result.Correct = true;
 
             } else {
-                Result.Correct = true;
+                Result.Correct = false;
                 Result.MessageException = "Recurso no encontrado";
             }
 
@@ -164,6 +155,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
                 Result.Correct = true;
             } else {
                 Result.Correct = false;
+                Result.MessageException = "Recurso no encontrado";
             }
 
             Result.Correct = true;
@@ -188,6 +180,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
                 Result.Correct = true;
             } else {
                 Result.Correct = false;
+                Result.MessageException = "Recurso no encontrado";
             }
 
             Result.Correct = true;
@@ -208,8 +201,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
             for (com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuario : Usuarios) {
 
-                Usuario usuarioJPA = modelMapper.map(usuario,
-                        com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Usuario.class);
+                Usuario usuarioJPA = mapUsuarioMLtoJPA(usuario);
                 usuarioJPA.setActivo(1);
                 entityManager.persist(usuarioJPA);
 
@@ -229,7 +221,6 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
     public Result Busqueda(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioBusqueda) {
         Result Result = new Result();
         try {
-
             if (usuarioBusqueda.getNombre() == null) {
                 usuarioBusqueda.setNombre("");
             }
@@ -266,8 +257,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             ArrayList<com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario> usuariosML = new ArrayList<>();
 
             for (Usuario usuario : usuariosJPA) {
-                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = modelMapper.map(usuario,
-                        com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario.class);
+                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = mapUsuarioJPAtoML(usuario);
                 usuariosML.add(usuarioML);
             }
             Result.Objects = new ArrayList<>(usuariosML);
@@ -279,6 +269,16 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
         }
 
         return Result;
+    }
+
+    public static com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario mapUsuarioJPAtoML(Usuario usuarioJPA) {
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(usuarioJPA, com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario.class);
+    }
+
+    public static Usuario mapUsuarioMLtoJPA(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML) {
+        ModelMapper modelMapper = new ModelMapper();
+        return modelMapper.map(usuarioML, Usuario.class);
     }
 
 }

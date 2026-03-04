@@ -123,9 +123,7 @@ public class DireccionJPAImplementation implements IDireccionJPA {
             if (direccion != null) {
                 entityManager.remove(direccion);
                 entityManager.flush();
-
                 Result.Correct = true;
-
             } else {
                 Result.Correct = false;
                 Result.MessageException = "Recurso no encontrado";
