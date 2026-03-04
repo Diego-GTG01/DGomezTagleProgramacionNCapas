@@ -1,5 +1,6 @@
 package com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 
-
 @Repository
 public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
@@ -28,14 +28,14 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
         try {
             TypedQuery<Usuario> query = entityManager.createQuery("FROM Usuario u ORDER BY u.Nombre ASC",
                     Usuario.class);
-            List<Usuario> usuariosJPA = query.getResultList();
-            ArrayList<com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario> usuariosML = new ArrayList<>();
+            List<Usuario> UsuariosJPA = query.getResultList();
+            ArrayList<com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario> UsuariosML = new ArrayList<>();
 
-            for (Usuario usuario : usuariosJPA) {
-                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = mapUsuarioJPAtoML(usuario);
-                usuariosML.add(usuarioML);
+            for (Usuario UsuarioJPA : UsuariosJPA) {
+                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = mapUsuarioJPAtoML(UsuarioJPA);
+                UsuariosML.add(usuarioML);
             }
-            result.Objects = new ArrayList<>(usuariosML);
+            result.Objects = new ArrayList<>(UsuariosML);
             result.Correct = true;
         } catch (Exception ex) {
             result.Correct = false;
@@ -52,9 +52,9 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             Usuario Usuario = entityManager.find(Usuario.class, IdUsuario);
             if (Usuario != null) {
 
-                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = mapUsuarioJPAtoML(Usuario);
+                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario UsuarioML = mapUsuarioJPAtoML(Usuario);
 
-                Result.Object = usuarioML;
+                Result.Object = UsuarioML;
                 Result.Correct = true;
             } else {
                 Result.Correct = false;
@@ -71,12 +71,18 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
     @Transactional
     @Override
-    public Result Add(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuario) {
+    public Result Add(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario UsuarioML) {
         Result Result = new Result();
         try {
-            Usuario usuarioJPA = mapUsuarioMLtoJPA(usuario);
+            Usuario UsuarioJPA = mapUsuarioMLtoJPA(UsuarioML);
+            UsuarioJPA.setUltimoAcceso(LocalDateTime.now());
 
-            entityManager.persist(usuarioJPA);
+            for (Direccion direccion : UsuarioJPA.Direcciones) {
+                direccion.Usuario = (UsuarioJPA);
+            }
+            UsuarioJPA.setUltimoAcceso(LocalDateTime.now());
+            UsuarioJPA.setActivo(1);
+            entityManager.persist(UsuarioJPA);
             Result.Correct = true;
 
         } catch (Exception ex) {
@@ -90,19 +96,18 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
     @Transactional
     @Override
-    public Result Update(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuario) {
+    public Result Update(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario UsuarioML) {
         Result Result = new Result();
         try {
-            Usuario Usuario = entityManager.find(Usuario.class, usuario.getIdUsuario());
-            if (Usuario != null) {
-                Usuario usuarioJPA = mapUsuarioMLtoJPA(usuario);
+            Usuario UsuarioJPA = entityManager.find(Usuario.class, UsuarioML.getIdUsuario());
+            if (UsuarioJPA != null) {
+                Usuario usuarioJPA = mapUsuarioMLtoJPA(UsuarioML);
+                UsuarioJPA.setUltimoAcceso(LocalDateTime.now());
+                usuarioJPA.setActivo(UsuarioJPA.getActivo());
+                usuarioJPA.setImagenFile(UsuarioJPA.getImagenFile());
 
-                usuarioJPA.setActivo(Usuario.getActivo());
-                usuarioJPA.setImagenFile(Usuario.getImagenFile());
-                usuarioJPA.getDirecciones().clear();
-
-                for (Direccion dir : Usuario.Direcciones) {
-                    dir.Usuario = Usuario;
+                for (Direccion dir : UsuarioJPA.Direcciones) {
+                    dir.Usuario = UsuarioJPA;
                     usuarioJPA.Direcciones.add(dir);
                 }
                 entityManager.merge(usuarioJPA);
@@ -127,9 +132,9 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
     public Result Delete(int IdUsuario) {
         Result Result = new Result();
         try {
-            Usuario usuario = entityManager.find(Usuario.class, IdUsuario);
-            if (usuario != null) {
-                entityManager.remove(usuario);
+            Usuario UsuarioJPA = entityManager.find(Usuario.class, IdUsuario);
+            if (UsuarioJPA != null) {
+                entityManager.remove(UsuarioJPA);
                 Result.Correct = true;
             } else {
                 Result.Correct = false;
@@ -148,10 +153,11 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
     public Result UpdateActivo(int IdUsuario, int Activo) {
         Result Result = new Result();
         try {
-            Usuario usuario = entityManager.find(Usuario.class, IdUsuario);
-            if (usuario != null) {
-                usuario.setActivo(Activo);
-                entityManager.merge(usuario);
+            Usuario UsuarioJPA = entityManager.find(Usuario.class, IdUsuario);
+            if (UsuarioJPA != null) {
+                UsuarioJPA.setUltimoAcceso(LocalDateTime.now());
+                UsuarioJPA.setActivo(Activo);
+                entityManager.merge(UsuarioJPA);
                 Result.Correct = true;
             } else {
                 Result.Correct = false;
@@ -170,20 +176,18 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
     @Transactional
     @Override
-    public Result UpdateImagen(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuario) {
+    public Result UpdateImagen(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario UsuarioML) {
         Result Result = new Result();
         try {
-            Usuario usuarioJPA = entityManager.find(Usuario.class, usuario.getIdUsuario());
+            Usuario usuarioJPA = entityManager.find(Usuario.class, UsuarioML.getIdUsuario());
             if (usuarioJPA != null) {
-                usuarioJPA.setImagenFile(usuario.getImagenFile());
+                usuarioJPA.setImagenFile(UsuarioML.getImagenFile());
                 entityManager.merge(usuarioJPA);
                 Result.Correct = true;
             } else {
                 Result.Correct = false;
                 Result.MessageException = "Recurso no encontrado";
             }
-
-            Result.Correct = true;
         } catch (Exception ex) {
             Result.Correct = false;
             Result.MessageException = ex.getLocalizedMessage();
@@ -195,17 +199,25 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
     @Transactional
     @Override
-    public Result AddAll(List<com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario> Usuarios) {
+    public Result AddAll(List<com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario> UsuariosML) {
         Result Result = new Result();
         try {
+            int i = 0;
+            int batchSize = 50;
+            for (com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario UsuarioML : UsuariosML) {
 
-            for (com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuario : Usuarios) {
-
-                Usuario usuarioJPA = mapUsuarioMLtoJPA(usuario);
-                usuarioJPA.setActivo(1);
-                entityManager.persist(usuarioJPA);
-
+                Usuario UsuarioJPA = mapUsuarioMLtoJPA(UsuarioML);
+                UsuarioJPA.setUltimoAcceso(LocalDateTime.now());
+                UsuarioJPA.setActivo(1);
+                i++;
+                entityManager.persist(UsuarioJPA);
+                if (i % batchSize == 0) {
+                    entityManager.flush();
+                    entityManager.clear();
+                }
             }
+            entityManager.flush();
+            entityManager.clear();
             Result.Correct = true;
 
         } catch (Exception ex) {
@@ -213,7 +225,6 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             Result.MessageException = ex.getLocalizedMessage();
             Result.ex = ex;
         }
-
         return Result;
     }
 
@@ -271,6 +282,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
         return Result;
     }
 
+    // METODOS DE MAPEO ENTRE JPA Y ML
     public static com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario mapUsuarioJPAtoML(Usuario usuarioJPA) {
         ModelMapper modelMapper = new ModelMapper();
         return modelMapper.map(usuarioJPA, com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario.class);

@@ -74,7 +74,7 @@
                                             <i class="bi bi-shield-lock"></i>
                                         </span>
                                         <select id="Rol" class="form-select" th:field="*{Rol.IdRol}">
-                                            <option value="0" disabled selected>Seleccione un rol</option>
+                                            <option value="0" selected>Seleccione un rol</option>
                                             <option th:each="rol : ${Roles}" th:value="${rol.IdRol}"
                                                 th:text="${rol.Nombre}">
                                             </option>
@@ -388,8 +388,8 @@
         Swal.fire({
             title: "Exito!",
             text: miAtributo,
-            icon: "success",
-            draggable: true
+            icon: "success"
+            
         });
     }
 
@@ -404,8 +404,8 @@
         Swal.fire({
             title: "Oppss!",
             text: miAtributo,
-            icon: "error",
-            draggable: true
+            icon: "error"
+            
         });
     }
 
