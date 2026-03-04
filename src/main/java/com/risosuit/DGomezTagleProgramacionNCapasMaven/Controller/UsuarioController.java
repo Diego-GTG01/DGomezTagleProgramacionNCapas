@@ -1,18 +1,11 @@
 package com.risosuit.DGomezTagleProgramacionNCapasMaven.Controller;
 
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.ColoniaDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.ColoniaJPADAOImplementation;
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.DireccionDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.DireccionJPAImplementation;
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.EstadoDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.EstadoJPADAOImplementation;
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.MunicipioDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.MunicipioJPADAOImplementation;
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.PaisDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.PaisJPADAOImplementation;
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.RolDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.RolJPADAOImplementation;
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.UsuarioDAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.DAO.UsuarioJPADAOImplementation;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Direccion;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.ErroresArchivo;
@@ -42,7 +35,6 @@ import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.hibernate.persister.entity.mutation.MutationCoordinator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -85,34 +77,16 @@ public class UsuarioController {
     @Autowired
     private ColoniaJPADAOImplementation coloniaJPADAOImplementation;
 
-    // JDB
+    // Validacion
 
     @Autowired
     private ValidationService validationservice;
 
-    @Autowired
-    private UsuarioDAOImplementation usuarioDAOImplementation;
 
-    @Autowired
-    private PaisDAOImplementation paisDAOImplementation;
-
-    @Autowired
-    private RolDAOImplementation rolDAOImplementation;
-    @Autowired
-    private DireccionDAOImplementation direccionDAOImplementation;
-    @Autowired
-    private EstadoDAOImplementation estadoDAOImplementation;
-
-    @Autowired
-    private MunicipioDAOImplementation municipioDAOImplementation;
-
-    @Autowired
-    private ColoniaDAOImplementation coloniaDAOImplementation;
-
+    // METODOS CONTROLADOR
     @GetMapping("")
     public String GetAll(Model model) {
 
-        // Result result = usuarioDAOImplementation.GetAll();
         Result result = usuarioJPADAOImplementation.GetAll();
         model.addAttribute("usuarios", result.Objects);
         model.addAttribute("Usuario", new Usuario());
@@ -121,20 +95,10 @@ public class UsuarioController {
 
     }
 
-    // @GetMapping("{idUsuario}")
-    // public String GetById(@PathVariable("idUsuario") int idUsuario, Model model)
-    // {
-    // Result result = usuarioDAOImplementation.GetById(idUsuario);
-    // model.addAttribute("usuarios", result.Object);
-    // return "GetAll";
-    //
-    // }
     @GetMapping("{idUsuario}")
     public String GetByIdDetalle(@PathVariable("idUsuario") int idUsuario, Model model) {
-        // Result result = usuarioDAOImplementation.GetById(idUsuario);
         Result result = usuarioJPADAOImplementation.GetById(idUsuario);
         model.addAttribute("usuario", result.Object);
-        // model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
         model.addAttribute("Paises", paisJPADAOImplementation.GetAll().Objects);
         model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
         model.addAttribute("Direccion", new Direccion());
@@ -145,8 +109,8 @@ public class UsuarioController {
     @PostMapping("")
     public String Busqueda(@ModelAttribute("Usuario") Usuario usuario, Model model) {
 
-        Result result = usuarioDAOImplementation.Busqueda(usuario);
-        // Result result = usuarioJPADAOImplementation.Busqueda(usuario);
+        Result result = usuarioJPADAOImplementation.Busqueda(usuario);
+        
         model.addAttribute("usuarios", result.Objects);
         model.addAttribute("Usuario", usuario);
         model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
@@ -157,7 +121,6 @@ public class UsuarioController {
 
     @GetMapping("cargamasiva")
     public String CargaMasiva() {
-
         return "CargaMasiva";
     }
 
@@ -398,7 +361,8 @@ public class UsuarioController {
         }
 
         System.out.println("Procesando archivo desde sesión: " + rutaReal);
-        Result Result = usuarioDAOImplementation.AddAll(Usuarios);
+        
+        Result Result = usuarioJPADAOImplementation.AddAll(Usuarios);
         if (Result.Correct) {
             redirectAttributes.addFlashAttribute("Success",
                     "Archivo Procesado correctamente\n" + "Se agregaron: " + Usuarios.size() + " Nuevos registros!");
@@ -427,11 +391,13 @@ public class UsuarioController {
                 usuario.setImagenFile(base64);
                 System.out.println(usuario.getImagenFile());
                 System.out.println(usuario.getIdUsuario());
-                Result Result = usuarioDAOImplementation.UpdateImagen(usuario);
+                
+                Result Result = usuarioJPADAOImplementation.UpdateImagen(usuario);
                 if (Result.Correct) {
+                    redirectAttributes.addFlashAttribute("Success","Imagen Actualizada Correctamente");
 
                 } else {
-
+                    redirectAttributes.addFlashAttribute("Error", "Algo Salió mal :( ");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -445,7 +411,6 @@ public class UsuarioController {
     @GetMapping("Delete/{idUsuario}")
     public String DeleteUsuario(@PathVariable("idUsuario") int idUsuario, Model model,
             RedirectAttributes redirectAttributes) {
-        // Result result = usuarioDAOImplementation.Delete(idUsuario);
         Result result = usuarioJPADAOImplementation.Delete(idUsuario);
         if (result.Correct) {
             redirectAttributes.addFlashAttribute("Success", "El usuario fue eliminado correctamente");
@@ -514,7 +479,6 @@ public class UsuarioController {
             model.addAttribute("Failed", "Usuario No Fue Agregado correctamente, Verifique los datos");
             return "Formulario";
         } else {
-            // Result result = usuarioDAOImplementation.Add(usuario);
             Result result = usuarioJPADAOImplementation.Add(usuario);
             if (result.Correct) {
                 redirectAttributes.addFlashAttribute("Success", "Usuario No Fue Editado correctamente");
@@ -545,7 +509,6 @@ public class UsuarioController {
 
             return "redirect:/Usuario/" + idUsuario;
         } else {
-            // Result result = usuarioDAOImplementation.Update(usuario);
             Result result = usuarioJPADAOImplementation.Update(usuario);
             if (result.Correct) {
                 redirectAttributes.addFlashAttribute("SuccessEdicion", "Usuario Editado correctamente");
@@ -663,7 +626,7 @@ public class UsuarioController {
     @GetMapping("getColoniasByMunicipio/{IdMunicipio}")
     @ResponseBody
     public Result getColoniaByMunicipio(@PathVariable("IdMunicipio") int IdMunicipio) {
-        //Result result = coloniaDAOImplementation.getColoniaByMunicipio(IdMunicipio);
+        // Result result = coloniaDAOImplementation.getColoniaByMunicipio(IdMunicipio);
         Result result = coloniaJPADAOImplementation.getColoniaByMunicipio(IdMunicipio);
         return result;
     }
@@ -676,13 +639,12 @@ public class UsuarioController {
         return result;
     }
 
-
-
     @PostMapping("UpdateActivo/{IdUsuario}/{Activo}")
     @ResponseBody
     public Result UpdateActivo(@PathVariable("IdUsuario") int IdUsuario,
             @PathVariable("Activo") int Activo) {
-        Result result = usuarioDAOImplementation.UpdateActivo(IdUsuario, Activo);
+
+        Result result = usuarioJPADAOImplementation.UpdateActivo(IdUsuario, Activo);
         return result;
     }
 

@@ -26,10 +26,15 @@ public class DireccionJPAImplementation implements IDireccionJPA {
         Result Result = new Result();
         try {
             Direccion direccion = entityManager.find(Direccion.class, IdDireccion);
-            com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Direccion direccionML = modelMapper.map(direccion,
-                    com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Direccion.class);
-            Result.Object = direccionML;
-            Result.Correct = true;
+            if (direccion != null) {
+                com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Direccion direccionML = modelMapper.map(direccion,
+                        com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Direccion.class);
+                Result.Object = direccionML;
+                Result.Correct = true;
+            } else {
+                Result.Correct = false;
+                Result.MessageException = "Recurso no encontrado";
+            }
 
         } catch (Exception ex) {
             Result.Correct = false;
@@ -46,15 +51,21 @@ public class DireccionJPAImplementation implements IDireccionJPA {
         Result Result = new Result();
         try {
             Usuario Usuario = entityManager.find(Usuario.class, idUsuario);
+            if (Usuario != null) {
+                Direccion direccionJPA = modelMapper.map(Direccion,
+                        com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Direccion.class);
+                direccionJPA.Usuario = Usuario;
+                Usuario.Direcciones.add(direccionJPA);
+                entityManager.merge(Usuario);
+                entityManager.flush();
 
-            Direccion direccionJPA = modelMapper.map(Direccion,
-                    com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Direccion.class);
-            direccionJPA.Usuario = Usuario;
-            Usuario.Direcciones.add(direccionJPA);
-            entityManager.merge(Usuario);
-            entityManager.flush();
+                Result.Correct = true;
 
-            Result.Correct = true;
+            } else {
+                Result.Correct = false;
+                Result.MessageException = "Recurso no encontrado";
+            }
+
         } catch (Exception ex) {
             Result.Correct = false;
             Result.MessageException = ex.getLocalizedMessage();
@@ -102,17 +113,24 @@ public class DireccionJPAImplementation implements IDireccionJPA {
         }
         return Result;
     }
-   
+
     @Transactional
     @Override
     public Result Delete(int idDireccion) {
         Result Result = new Result();
         try {
             Direccion direccion = entityManager.find(Direccion.class, idDireccion);
-            entityManager.remove(direccion);
-            entityManager.flush();
+            if (direccion != null) {
+                entityManager.remove(direccion);
+                entityManager.flush();
 
-            Result.Correct = true;
+                Result.Correct = true;
+
+            } else {
+                Result.Correct = false;
+                Result.MessageException = "Recurso no encontrado";
+            }
+
         } catch (Exception ex) {
             Result.Correct = false;
             Result.MessageException = ex.getLocalizedMessage();

@@ -246,7 +246,7 @@
             $("#calleAdd").val(Direccion.calle);
             $("#numexteriorAdd").val(Direccion.numeroExterior);
             $("#numInteriorAdd").val(Direccion.numeroInterior);
-            
+
 
         }
 
@@ -750,9 +750,9 @@
                                                         th:errors="*{Rol.IdRol}">
                                                     </span>
                                                     <input th:field="*{Password}" type="hidden">
-                                                    
+
                                                     <input type="hidden" th:field="*{ImagenFile} ">
-                                                    
+
                                                 </div>
                                             </div>
 
@@ -764,7 +764,7 @@
                                                 <i class="bi bi-x-circle me-2"></i>Cancelar
                                             </button>
                                             <button type="submit" class="btn btn-primary">
-                                                <i class="bi bi-plus-circle me-2"></i>Agregar Dirección
+                                                <i class="bi bi-save me-2"></i>Guardar Cambios
                                             </button>
                                         </div>
                                 </form>
@@ -1974,6 +1974,42 @@
     }
 
 </script>
+
+<script th:inline="javascript">
+
+    var miAtributo = [[${
+        Success
+    }
+    ]];
+    if (miAtributo != null) {
+        Swal.fire({
+            title: "Exito!!",
+            text: miAtributo,
+            icon: "success",
+            draggable: true
+        });
+    }
+
+</script>
+
+<script th:inline="javascript">
+
+    var miAtributo = [[${
+        Error
+    }
+    ]];
+    if (miAtributo != null) {
+        Swal.fire({
+            title: "Error!!",
+            text: miAtributo,
+            icon: "error",
+            draggable: true
+        });
+    }
+
+</script>
+
+
 
 
 </html>

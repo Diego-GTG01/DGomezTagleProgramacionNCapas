@@ -14,15 +14,23 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario;
  * @author ALIEN62
  */
 public interface IUsuario {
-    
+
     public Result GetAll();
+
     public Result GetById(int IdUsuario);
+
     public Result Add(Usuario usuario);
+
     public Result AddAll(List<Usuario> Usuarios);
+
     public Result Delete(int idUsuario);
+
     public Result UpdateImagen(Usuario usuario);
+
     public Result Update(Usuario usuario);
+
     public Result Busqueda(Usuario usuario);
+
     public Result UpdateActivo(int IdUsuario, int Activo);
-    
+
 }

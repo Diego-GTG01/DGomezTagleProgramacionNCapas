@@ -83,7 +83,12 @@
                                 </div>
                                 <div class="col-md-2 mb-3">
                                     <label class="form-label d-block">Sexo *</label>
-
+                                    
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" th:field="*{Sexo}" value="">
+                                        <label class="form-check-label">No especificar</label>
+                                    </div>
+                                    
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="radio" th:field="*{Sexo}" value="MM">
                                         <label class="form-check-label">Masculino</label>
@@ -114,6 +119,12 @@
 
                             </div>
                         </form>
+                    </div>
+                    <div class="col-md-12 text-md-end mt-3 mt-md-0">
+                        <a th:href="@{/Usuario/cargamasiva}" class="btn btn-info">
+                            <i class="bi bi-person-plus me-2"></i>
+                            Carga Masiva
+                        </a>
                     </div>
 
                     <div class="col-md-12 text-md-end mt-3 mt-md-0">
@@ -240,10 +251,8 @@
                                     th:text="${usuario.activo == 1} ? 'Activo' : 'Inactivo'"
                                     th:classappend="${usuario.activo == 1} ? 'text-success' : 'text-danger'">
                                 </label>
-                                <small class="d-block text-muted mt-1"
-                                    th:text="${usuario.activo == 1} ? 'Usuario activo' : 'Usuario inactivo'">
-                                </small>
-                                
+
+
                             </div>
                         </td>
 
