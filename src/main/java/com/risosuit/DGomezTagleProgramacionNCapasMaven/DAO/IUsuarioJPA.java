@@ -11,6 +11,9 @@ public interface IUsuarioJPA {
 
     Result GetById(int IdUsuario);
 
+    Result GetByUserName(String UserName);
+
+
     Result Busqueda(Usuario usuario);
 
     Result Add(Usuario usuario);

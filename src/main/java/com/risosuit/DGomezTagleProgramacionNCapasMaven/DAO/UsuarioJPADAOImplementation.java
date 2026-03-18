@@ -102,7 +102,7 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             Usuario UsuarioJPA = entityManager.find(Usuario.class, UsuarioML.getIdUsuario());
             if (UsuarioJPA != null) {
                 Usuario usuarioJPA = mapUsuarioMLtoJPA(UsuarioML);
-                UsuarioJPA.setUltimoAcceso(LocalDateTime.now());
+                usuarioJPA.setUltimoAcceso(LocalDateTime.now());
                 usuarioJPA.setActivo(UsuarioJPA.getActivo());
                 usuarioJPA.setImagenFile(UsuarioJPA.getImagenFile());
 
@@ -282,14 +282,56 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
         return Result;
     }
 
+    @Override
+    public Result GetByUserName(String UserName) {
+
+        Result result = new Result();
+        Usuario Usuario = new Usuario();
+        try {
+            TypedQuery<Usuario> typedquery = entityManager.createQuery(
+                    "SELECT u FROM Usuario u LEFT JOIN FETCH u.Direcciones WHERE u.UserName = :pUserName",
+                    Usuario.class);
+            typedquery.setParameter("pUserName", UserName);
+            Usuario = typedquery.getSingleResult();
+
+            com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario UsuarioML = mapUsuarioJPAtoML(Usuario);
+            result.Object = UsuarioML;
+
+            if (result.Object != null) {
+                result.Correct = true;
+            } else {
+                result.Correct = false;
+                result.MessageException = "Usuario No encontrado";
+            }
+
+        } catch (Exception ex) {
+            result.Correct = false;
+            result.MessageException = ex.getLocalizedMessage();
+            result.ex = ex;
+        }
+
+        return result;
+
+    }
+
     // METODOS DE MAPEO ENTRE JPA Y ML
     public static com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario mapUsuarioJPAtoML(Usuario usuarioJPA) {
         ModelMapper modelMapper = new ModelMapper();
+
+        if (usuarioJPA.getDirecciones() != null) {
+            usuarioJPA.setDirecciones(new ArrayList<>(usuarioJPA.getDirecciones()));
+        }
+
         return modelMapper.map(usuarioJPA, com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario.class);
     }
 
     public static Usuario mapUsuarioMLtoJPA(com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML) {
         ModelMapper modelMapper = new ModelMapper();
+
+        if (usuarioML.getDirecciones() != null) {
+            usuarioML.setDirecciones(new ArrayList<>(usuarioML.getDirecciones()));
+        }
+
         return modelMapper.map(usuarioML, Usuario.class);
     }
 

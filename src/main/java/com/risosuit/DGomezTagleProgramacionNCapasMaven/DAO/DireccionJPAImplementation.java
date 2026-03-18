@@ -88,7 +88,9 @@ public class DireccionJPAImplementation implements IDireccionJPA {
                 Result.MessageException = "Dirección no encontrada";
                 return Result;
             }
-
+            DireccionJPA.setCalle(DireccionML.getCalle());
+            DireccionJPA.setNumeroExterior(DireccionML.getNumeroExterior());
+            DireccionJPA.setNumeroInterior(DireccionML.getNumeroInterior());
             if (DireccionML.Colonia != null && DireccionML.Colonia.getIdColonia() > 0) {
                 Colonia colonia = entityManager.find(Colonia.class, DireccionML.getColonia().getIdColonia());
                 DireccionJPA.setColonia(colonia);
