@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.JPA.Usuario;
@@ -60,7 +62,6 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
                 Result.Correct = false;
                 Result.MessageException = "Recurso no encontrado";
             }
-
         } catch (Exception ex) {
             Result.Correct = false;
             Result.MessageException = ex.getLocalizedMessage();
@@ -80,8 +81,11 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
             for (Direccion direccion : UsuarioJPA.Direcciones) {
                 direccion.Usuario = (UsuarioJPA);
             }
+            PasswordEncoder encoder = new BCryptPasswordEncoder();
+            UsuarioJPA.setPassword(encoder.encode(UsuarioJPA.getPassword()));
             UsuarioJPA.setUltimoAcceso(LocalDateTime.now());
             UsuarioJPA.setActivo(1);
+
             entityManager.persist(UsuarioJPA);
             Result.Correct = true;
 
@@ -266,9 +270,10 @@ public class UsuarioJPADAOImplementation implements IUsuarioJPA {
 
             List<Usuario> usuariosJPA = query.getResultList();
             ArrayList<com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario> usuariosML = new ArrayList<>();
-
+            PasswordEncoder encoder = new BCryptPasswordEncoder();
             for (Usuario usuario : usuariosJPA) {
                 com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario usuarioML = mapUsuarioJPAtoML(usuario);
+                usuarioML.setPassword(encoder.encode(usuarioML.getPassword()));
                 usuariosML.add(usuarioML);
             }
             Result.Objects = new ArrayList<>(usuariosML);

@@ -1,57 +1,88 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="es" xmlns:th="https://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Iniciar Sesión</title>
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
 
-</head>
+  <body class="bg-light">
+    <div
+      class="container d-flex justify-content-center align-items-center min-vh-100"
+    >
+      <div class="card border-0 shadow" style="width: 100%; max-width: 400px">
+        <div class="card-body p-4">
+          <div class="text-center mb-4">
+            <i class="bi bi-person-circle fs-1 text-primary"></i>
+            <h4 class="fw-semibold mt-2">Iniciar Sesión</h4>
+          </div>
 
-<body class="bg-light">
+          <!-- Mensaje de error -->
+          <div
+            th:if="${error}"
+            class="alert alert-danger py-2 small"
+            role="alert"
+          >
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${error}">Error</span>
+          </div>
 
-```
-<div class="container d-flex justify-content-center align-items-center vh-100">
-    
-    <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px;">
-        
-        <div class="text-center mb-4">
-            <h3 class="fw-bold">Iniciar Sesión</h3>
-            <p class="text-muted">Accede a tu cuenta</p>
-        </div>
-
-        <div th:if="${param.error}" class="alert alert-danger text-center">
-            Usuario o contraseña incorrectos
-        </div>
-
-        
-
-        <form th:action="@{/login}" method="post">
-            
+          <form th:action="@{/login}" method="post">
             <div class="mb-3">
-                <label class="form-label">Usuario</label>
-                <input type="text" name="username" class="form-control" placeholder="Ingresa tu usuario" required>
+              <label class="form-label small fw-semibold">Usuario</label>
+              <input
+                type="text"
+                name="username"
+                class="form-control"
+                placeholder="Ingresa tu usuario"
+                required
+                autofocus
+              />
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Contraseña</label>
-                <input type="password" name="password" class="form-control" placeholder="Ingresa tu contraseña" required>
+              <label class="form-label small fw-semibold">Contraseña</label>
+              <input
+                type="password"
+                name="password"
+                class="form-control"
+                placeholder="Ingresa tu contraseña"
+                required
+              />
             </div>
 
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary">
-                    Ingresar
-                </button>
-            </div>
-
-        </form>
-
+            <button type="submit" class="btn btn-primary w-100">
+              Ingresar
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
 
-</div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+      var miAtributo = [[${
+          logout
+      }
+      ]];
+      if (miAtributo != null) {
+          Swal.fire({
+              title: "Exito!",
+              text: miAtributo,
+              icon: "success"
 
-</body>
+          });
+          
+      }
+    </script>
+  </body>
 </html>

@@ -36,6 +36,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -85,12 +88,18 @@ public class UsuarioController {
     // METODOS CONTROLADOR USUARIO
     @GetMapping("")
     public String GetAll(Model model) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        model.addAttribute("usuarioLogueado","Usuario: " + userDetails.getUsername()+" - Rol: " + userDetails.getAuthorities().toString().substring(6, userDetails.getAuthorities().toString().length()-1));
+
         Result Result = usuarioJPADAOImplementation.GetAll();
         model.addAttribute("usuarios", Result.Objects);
         model.addAttribute("Usuario", new Usuario());
         model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
-        return "GetAll";
 
+        return "GetAll";
     }
 
     @GetMapping("{idUsuario}")
@@ -372,7 +381,7 @@ public class UsuarioController {
     // METODOS CONTROLADOR DIRECCION
     public String DeleteDireccion(@PathVariable("idDireccion") int idDireccion,
             @PathVariable("idUsuario") int idUsuario, RedirectAttributes redirectAttributes) {
-        
+
         Result Result = direccionJPAImplementation.Delete(idDireccion);
         if (Result.Correct) {
             redirectAttributes.addFlashAttribute("SuccessDeleteDireccion", "La Direccion fue eliminada correctamente");
