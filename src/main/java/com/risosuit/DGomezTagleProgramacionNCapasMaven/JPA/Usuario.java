@@ -70,7 +70,7 @@ public class Usuario {
     @JoinColumn(name = "idrol")
     public Rol Rol;
     
-    @OneToMany(mappedBy = "Usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "Usuario", cascade = CascadeType.ALL)
     public List<Direccion> Direcciones;
 
     public Usuario() {

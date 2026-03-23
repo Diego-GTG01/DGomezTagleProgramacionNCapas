@@ -27,7 +27,6 @@ public class UserDetailJPA implements UserDetailsService {
         if (usuario == null) {
             throw new UsernameNotFoundException("Usuario no encontrado: " + username);
         }
-
         return User.withUsername(usuario.getUserName())
                 .password(usuario.getPassword())
                 .disabled((usuario.getActivo() == 0) ? true : false)

@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.Handler.CustomAuthenticationFailureHandler;
-import com.risosuit.DGomezTagleProgramacionNCapasMaven.Handler.CustomLogoutSuccessHandler;
+import com.risosuit.DGomezTagleProgramacionNCapasMaven.Handler.CustomAuthenticationSuccessHandler;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.Service.UserDetailJPA;
 
 @Configuration
@@ -23,7 +23,9 @@ public class SecurityConfiguration {
     private CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
     @Autowired
-    private CustomLogoutSuccessHandler customLogoutSuccessHandler;
+    private CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+
+
 
     public SecurityConfiguration(UserDetailJPA userDetailJPA) {
         this.userDetailJPA = userDetailJPA;
@@ -36,12 +38,13 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(configurer -> configurer
                 .requestMatchers("/login", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/Usuario/**")
-                .hasAnyRole("Administrador", "Usuario")
+                .hasAnyRole("Administrador", "Usuario","Editor")
                 .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login") 
                         .defaultSuccessUrl("/Usuario")
+                        .successHandler(customAuthenticationSuccessHandler)
                         .failureHandler(customAuthenticationFailureHandler) // Usar el handler
                         .permitAll())
                 .logout(logout -> logout

@@ -13,6 +13,7 @@ import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Result;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.ML.Usuario;
 import com.risosuit.DGomezTagleProgramacionNCapasMaven.Service.ValidationService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
@@ -36,6 +37,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -87,13 +89,23 @@ public class UsuarioController {
 
     // METODOS CONTROLADOR USUARIO
     @GetMapping("")
-    public String GetAll(Model model) {
+    @PreAuthorize("hasRole('ROLE_Administrador') or hasRole('ROLE_Editor')")
+    public String GetAll(Model model, HttpServletRequest request, HttpSession session) {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean esAdmin = hasRole("Administrador");
+        boolean esEditor = hasRole("Editor");
 
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
-        model.addAttribute("usuarioLogueado","Usuario: " + userDetails.getUsername()+" - Rol: " + userDetails.getAuthorities().toString().substring(6, userDetails.getAuthorities().toString().length()-1));
+        if (!esAdmin) {
+            if (!esEditor) {
+                session = request.getSession(false);
+                int idUsuarioActual = (int) session.getAttribute("idUsuario");
 
+                if (idUsuarioActual != 0) {
+                    return "redirect:/Usuario/" + idUsuarioActual;
+                }
+            }
+
+        }
         Result Result = usuarioJPADAOImplementation.GetAll();
         model.addAttribute("usuarios", Result.Objects);
         model.addAttribute("Usuario", new Usuario());
@@ -103,14 +115,33 @@ public class UsuarioController {
     }
 
     @GetMapping("{idUsuario}")
-    public String GetByIdDetalle(@PathVariable("idUsuario") int idUsuario, Model model) {
-        Result Result = usuarioJPADAOImplementation.GetById(idUsuario);
-        model.addAttribute("usuario", Result.Object);
+    @PreAuthorize("hasRole('ROLE_Usuario') or hasRole('ROLE_Administrador')")
+    public String GetByIdDetalle(@PathVariable("idUsuario") int idUsuario,
+            Model model, HttpServletRequest request, HttpSession session) {
+
+        boolean esAdmin = hasRole("Administrador");
+        boolean esEditor = hasRole("Editor");
+
+        Result result = usuarioJPADAOImplementation.GetById(idUsuario);
+
+        if (!esAdmin) {
+            if (!esEditor) {
+                session = request.getSession(false);
+                int idUsuarioActual = (int) session.getAttribute("idUsuario");
+
+                if (idUsuarioActual != idUsuario) {
+                    return "redirect:/Usuario/" + idUsuarioActual;
+                }
+            }
+
+        }
+
+        model.addAttribute("usuario", result.Object);
         model.addAttribute("Paises", paisJPADAOImplementation.GetAll().Objects);
         model.addAttribute("Roles", rolJPADAOImplementation.GetAll().Objects);
         model.addAttribute("Direccion", new Direccion());
-        return "DetalleUsuario";
 
+        return "DetalleUsuario";
     }
 
     @PostMapping("")
@@ -127,7 +158,19 @@ public class UsuarioController {
     }
 
     @GetMapping("cargamasiva")
-    public String CargaMasiva() {
+    public String CargaMasiva(HttpServletRequest request, HttpSession session) {
+        boolean esAdmin = hasRole("Administrador");
+        boolean esEditor = hasRole("Editor");
+        if (!esAdmin) {
+            if (esEditor) {
+                return "redirect:/Usuario";
+            }
+
+            session = request.getSession(false);
+            int idUsuarioActual = (int) session.getAttribute("idUsuario");
+
+            return "redirect:/Usuario/" + idUsuarioActual;
+        }
         return "CargaMasiva";
     }
 
@@ -186,7 +229,16 @@ public class UsuarioController {
 
     @GetMapping("CargaMasivaProcesar")
     public String procesarArchivo(@RequestParam("idRuta") String idRuta, HttpSession session,
+            HttpServletRequest request,
             RedirectAttributes redirectAttributes) {
+
+        boolean esAdmin = hasRole("Administrador");
+        if (!esAdmin) {
+            session = request.getSession(false);
+            int idUsuarioActual = (int) session.getAttribute("idUsuario");
+
+            return "redirect:/Usuario/" + idUsuarioActual;
+        }
 
         List<Usuario> Usuarios = null;
         String rutaReal = null;
@@ -275,7 +327,21 @@ public class UsuarioController {
     }
 
     @GetMapping("Form")
-    public String Formulario(Model model) {
+    public String Formulario(Model model, HttpServletRequest request, HttpSession session) {
+        boolean esAdmin = hasRole("Administrador");
+        boolean esEditor = hasRole("Editor");
+        if (!esAdmin) {
+            if (!esEditor) {
+                session = request.getSession(false);
+                int idUsuarioActual = (int) session.getAttribute("idUsuario");
+
+                return "redirect:/Usuario/" + idUsuarioActual;
+            }else{
+                return "redirect:/Usuario";
+                
+            }
+
+        }
         model.addAttribute("Usuario", new Usuario());
         // model.addAttribute("Paises", paisDAOImplementation.GetAll().Objects);
         model.addAttribute("Paises", paisJPADAOImplementation.GetAll().Objects);
@@ -645,6 +711,17 @@ public class UsuarioController {
             return "";
         }
         return campo.trim();
+    }
+
+    private boolean hasRole(String roleName) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return false;
+        }
+        String formattedRole = roleName.startsWith("ROLE_") ? roleName : "ROLE_" + roleName;
+
+        return auth.getAuthorities().stream()
+                .anyMatch(granted -> granted.getAuthority().equals(formattedRole));
     }
 
 }
